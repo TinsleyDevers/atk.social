@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATK</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Helvetica+Neue:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="images/ATKLogoTransparent.png" alt="ATK Logo">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#about">About</a></li>
+                <li><a href="#team">Team</a></li>
+                <li><a href="#work">Work</a></li>
+            </ul>
+        </nav>
+        <a href="#contact" class="get-in-touch">Get in Touch</a>
+    </header>
+
+    <section id="about">
+        <div class="container">
+            <h1>About Us</h1>
+            <h2>ATK Social</h2>
+            <p>The content creator group.</p>
+            <h2>ATK Studios</h2>
+            <p>The Video Game Development group.</p>
+        </div>
+    </section>
+
+    <section id="team">
+        <div class="container">
+            <h1>Our Team</h1>
+            <div class="team-member">
+                <img src="images/team/addi.png" alt="Addi">
+                <p>Addi</p>
+                <p>Co-founder</p>
+                <p>Content Creator</p>
+            </div>
+            <div class="team-member">
+                <img src="images/team/tinsley.png" alt="Tinsley">
+                <p>Tinsley</p>
+                <p>Founder</p>
+                <p>Development</p>
+            </div>
+            <div class="team-member">
+                <img src="images/team/kai.png" alt="Kai">
+                <p>Kai</p>
+                <p>Co-founder</p>
+                <p>Development</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="work">
+        <div class="container">
+            <h1>Our Work</h1>
+            <div class="category">
+                <h2>Brands We've Worked With</h2>
+                <div class="brand-container">
+                    <div class="brand">
+                        <a href="https://www.microsoft.com" target="_blank">
+                            <img src="images/work/microsoftlogo.png" alt="Microsoft">
+                        </a>
+                    </div>
+                    <div class="brand">
+                        <a href="https://apexminecrafthosting.com" target="_blank">
+                            <img src="images/work/apexhostinglogo.png" alt="Apex Hosting">
+                        </a>
+                    </div>
+                    <div class="brand">
+                        <a href="https://store.steampowered.com" target="_blank">
+                            <img src="images/work/steamlogo.png" alt="Steam">
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category">
+                <h2>ATK Social</h2>
+                <div class="project-container">
+                    <div class="project">
+                        <h3>Hot Ones Event</h3>
+                        <p>Hosted the Hot Ones event.</p>
+                    </div>
+                    <div class="project">
+                        <h3>Code Blue</h3>
+                        <p>You know why this is here.</p>
+                    </div>
+                    <div class="project">
+                        <h3>#1 Fortnite Streamer</h3>
+                        <p>4kairottvis4wastaken blew up because of us.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category">
+                <h2>ATK Studios</h2>
+                <div class="unannounced-project-container">
+                    <div class="unannounced-project">
+                        <h3>Unannounced Project</h3>
+                        <p>Stay tuned for our upcoming game!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact">
+        <div class="container">
+            <h1>Contact Us</h1>
+            <p>Contact us at <a href="mailto:contact.ATKSocial@gmail.com">contact.ATKSocial@gmail.com</a></p>
+        </div>
+    </section>
+
+    <script>
+        document.querySelectorAll('nav ul li a, .get-in-touch').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
