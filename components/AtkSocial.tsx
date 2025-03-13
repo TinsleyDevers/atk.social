@@ -176,24 +176,6 @@ const HorizontalGallery = ({ projects }: { projects: Project[] }) => {
           ))}
         </div>
       </motion.div>
-
-      {/* Scroll indicator */}
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center opacity-60">
-        <p className="text-sm uppercase tracking-widest mb-3">
-          Scroll to explore
-        </p>
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
-          className="w-5 h-9 border border-white/50 rounded-full flex justify-center pt-1"
-        >
-          <motion.div
-            className="w-1 h-2 bg-white rounded-full"
-            animate={{ y: [0, 6, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5 }}
-          />
-        </motion.div>
-      </div>
     </div>
   );
 };
@@ -401,12 +383,12 @@ const AtkSocial = () => {
   const projects: Project[] = [
     {
       id: 1,
-      title: "Influencer Campaign",
+      title: "Hot Ones Event",
       description:
-        "Multi-platform content series featuring lifestyle influencers across Instagram, TikTok, and YouTube.",
-      image: "/images/placeholder.png",
-      client: "Fashion Brand",
-      tags: ["Content Creation", "Social Media", "Influencer Marketing"],
+        "Live-streamed event capturing the heat and reactions of participants as they take on the Hot Ones challenge.",
+      image: "/images/atksocial/hotonesevent.png",
+      client: "heyaddi",
+      tags: ["Content Creation", "Streaming", "Live Production"],
       featured: true,
     },
     {

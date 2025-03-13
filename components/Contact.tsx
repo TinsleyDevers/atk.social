@@ -91,27 +91,6 @@ const Contact = () => {
       ),
     },
     {
-      id: "studios",
-      email: "studios@atkgroup.com",
-      title: "ATK Studios",
-      description: "For game development and interactive experiences",
-      icon: (
-        <svg
-          className="w-6 h-6"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M17 6H7c-4 0-4 1.5-4 4v4c0 2.5 0 4 4 4h10c4 0 4-1.5 4-4v-4c0-2.5 0-4-4-4Z" />
-          <path d="M17 10h-2v4h2" />
-          <path d="M13 10H7v4h6" />
-        </svg>
-      ),
-    },
-    {
       id: "social",
       email: "social@atkgroup.com",
       title: "ATK Social",
@@ -131,6 +110,27 @@ const Contact = () => {
           <path d="M18 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
           <path d="M8.59 13.51 15.42 17.49" />
           <path d="M15.41 6.51 8.59 10.49" />
+        </svg>
+      ),
+    },
+    {
+      id: "studios",
+      email: "studios@atkgroup.com",
+      title: "ATK Studios",
+      description: "For game development and interactive experiences",
+      icon: (
+        <svg
+          className="w-6 h-6"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M17 6H7c-4 0-4 1.5-4 4v4c0 2.5 0 4 4 4h10c4 0 4-1.5 4-4v-4c0-2.5 0-4-4-4Z" />
+          <path d="M17 10h-2v4h2" />
+          <path d="M13 10H7v4h6" />
         </svg>
       ),
     },
@@ -747,7 +747,7 @@ const Contact = () => {
               {[
                 {
                   title: "New York",
-                  address: "123 Broadway, NY 10001",
+                  address: "123 Lorem Ipsum, NY 10001",
                   icon: (
                     <svg
                       className="w-5 h-5"
@@ -765,7 +765,7 @@ const Contact = () => {
                 },
                 {
                   title: "Los Angeles",
-                  address: "456 Venice Blvd, LA 90001",
+                  address: "456 Lorem Ipsum, LA 90001",
                   icon: (
                     <svg
                       className="w-5 h-5"
@@ -783,7 +783,7 @@ const Contact = () => {
                 },
                 {
                   title: "London",
-                  address: "789 Oxford St, London W1A 1AB",
+                  address: "789 Lorem Ipsum, London W1A 1AB",
                   icon: (
                     <svg
                       className="w-5 h-5"

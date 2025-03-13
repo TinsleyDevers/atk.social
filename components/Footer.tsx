@@ -442,7 +442,7 @@ const Footer = () => {
           </p>
           <div className="flex flex-wrap gap-6">
             <a
-              href="/privacy-oolicy"
+              href="/privacy-policy"
               className="text-gray-400 hover:text-white transition-colors text-sm relative group"
               data-cursor="magnetic"
             >

@@ -510,7 +510,7 @@ const GameFeatures = ({ game }: { game: Game }) => {
             {
               title: "Competitive 1v1 Battles",
               description:
-                "Fast-paced, tactical head-to-head combat with unique balancing mechanisms to ensure fair, skill-based gameplay.",
+                "Fast-paced, tactical head-to-head combat with unique balancing mechanisms to ensure fun, skill-based gameplay.",
               icon: (
                 <svg
                   className="w-8 h-8 text-blue-400 mb-4"
@@ -538,7 +538,7 @@ const GameFeatures = ({ game }: { game: Game }) => {
             {
               title: "Advanced Weaponry",
               description:
-                "Strategic arsenal with weapons and abilities that encourage varied playstyles and counter strategies.",
+                "Strategic arsenal of weapons and abilities that encourage varied playstyles and counter strategies.",
               icon: (
                 <svg
                   className="w-8 h-8 text-blue-400 mb-4"
@@ -633,9 +633,9 @@ const GameFeatures = ({ game }: { game: Game }) => {
               ),
             },
             {
-              title: "Strategic Depth",
+              title: "Unannounced Feature",
               description:
-                "Layer your approach with tactical decisions about loadouts, ability timing, and map control that reward skillful play.",
+                "Revolutionizing the way you play and interact with the map. Stay tuned for more details.",
               icon: (
                 <svg
                   className="w-8 h-8 text-blue-400 mb-4"
@@ -965,12 +965,12 @@ const AtkStudios = () => {
     description:
       "An unannounced competitive 1v1 shooter that redefines the genre through innovative mechanics and strategic depth. Coming soon.",
     image: "/images/placeholder.png",
-    platform: "PC & Console",
+    platform: "PC",
     tags: ["Shooter", "Competitive", "Multiplayer", "PvP", "Fast-paced"],
     featured: true,
     status: "Unannounced",
     stats: {
-      Platform: "PC, Console",
+      Platform: "PC",
       Engine: "Unreal Engine 5",
       Status: "In Development",
       Release: "TBA",

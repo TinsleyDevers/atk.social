@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "atk.social": "file:",
     "cookies-next": "^5.1.0",
     "framer-motion": "^12.4.11",
     "next": "^15.2.2",
