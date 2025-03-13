@@ -508,9 +508,9 @@ const BrandDetailModal = ({
   );
 };
 
-// Main component - update the filtering logic and grid
-const EnhancedBrands = () => {
-  // Existing state and refs
+// Main component
+const Brands = () => {
+  // state and refs
   const sectionRef = useRef<HTMLElement>(null);
   const [activeFilter, setActiveFilter] = useState<
     "all" | "social" | "studios" | "both"
@@ -525,7 +525,7 @@ const EnhancedBrands = () => {
     { key: "both", label: "Both Divisions" },
   ];
 
-  // Brand partners data - making sure this is a constant that doesn't get modified
+  // Brand partners data
   const brandPartners = useMemo(
     () => [
       {
@@ -633,9 +633,6 @@ const EnhancedBrands = () => {
       <div className="absolute top-0 left-0 w-full h-px bg-white/10"></div>
       <div className="absolute bottom-0 left-0 w-full h-px bg-white/10"></div>
 
-      {/* Ambient light */}
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-3xl bg-white/3 rounded-full blur-[100px] opacity-20"></div>
-
       <div className="container mx-auto px-6 relative z-10">
         <motion.div
           className="mb-20 text-center"
@@ -681,7 +678,7 @@ const EnhancedBrands = () => {
           ))}
         </div>
 
-        {/* Updated brand grid with better layout animation */}
+        {/* Brand grid */}
         <div className="max-w-6xl mx-auto mb-24">
           <motion.div
             className="grid grid-cols-2 md:grid-cols-4 gap-1 md:gap-2"
@@ -782,4 +779,4 @@ const EnhancedBrands = () => {
   );
 };
 
-export default EnhancedBrands;
+export default Brands;

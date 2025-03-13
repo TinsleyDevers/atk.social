@@ -169,7 +169,7 @@ const TiltCard = ({
         {children}
       </motion.div>
 
-      {/* Enhanced shine effect */}
+      {/* Shine effect */}
       {isHovered && (
         <motion.div
           className="absolute inset-0 pointer-events-none"
@@ -886,8 +886,8 @@ const DevelopmentRoadmap = () => {
   );
 };
 
-// Enhanced call-to-action with newsletter signup
-const EnhancedCTA = () => {
+// call-to-action with newsletter signup
+const CTA = () => {
   return (
     <motion.div
       className="max-w-5xl mx-auto mb-20 relative overflow-hidden border border-blue-500/20 p-16"
@@ -955,7 +955,7 @@ const EnhancedCTA = () => {
 };
 
 // Main project showcase component
-const ProjectParadoxShowcase = () => {
+const AtkStudios = () => {
   const sectionRef = useRef(null);
 
   // Game data for Project Paradox
@@ -1098,8 +1098,8 @@ const ProjectParadoxShowcase = () => {
             </div>
           </motion.div>
 
-          {/* Enhanced call to action */}
-          <EnhancedCTA />
+          {/* call to action */}
+          <CTA />
         </div>
       </div>
 
@@ -1135,4 +1135,4 @@ const ProjectParadoxShowcase = () => {
   );
 };
 
-export default ProjectParadoxShowcase;
+export default AtkStudios;

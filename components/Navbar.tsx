@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 
-const EnhancedNavbar = () => {
+const Navbar = () => {
   // State management
   // State management
   const [isOpen, setIsOpen] = useState(false);
@@ -927,4 +927,4 @@ const EnhancedNavbar = () => {
   );
 };
 
-export default EnhancedNavbar;
+export default Navbar;

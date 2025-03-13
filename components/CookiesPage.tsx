@@ -86,7 +86,7 @@ const saveCookiePreferences = (preferences: Record<string, boolean>) => {
 const applyPreferences = (preferences: Record<string, boolean>) => {
   // Handle Google Analytics if it's present
   if (typeof window !== "undefined") {
-    // If analytics is disabled, we might want to disable GA tracking
+    // If analytics is disabled
     if (!preferences.analytics && window.dataLayer) {
       // Push GA opt-out flags
       window.dataLayer.push(["ga-disable-tracking", true]);
@@ -94,8 +94,7 @@ const applyPreferences = (preferences: Record<string, boolean>) => {
 
     // If marketing cookies are disabled, we might want to turn off ad cookies
     if (!preferences.marketing) {
-      // Disable marketing/ad cookies if applicable
-      // This is specific to each marketing service you use
+      // Disable marketing/ad cookies if applicable (IMPLEMENT LATER)
     }
   }
 };

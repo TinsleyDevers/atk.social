@@ -9,7 +9,7 @@ import {
   AnimatePresence,
 } from "framer-motion";
 
-const PremiumCursor = () => {
+const Cursor = () => {
   // Cursor state
   const [cursorType, setCursorType] = useState("default");
   const [cursorText, setCursorText] = useState("");
@@ -602,4 +602,4 @@ const PremiumCursor = () => {
   );
 };
 
-export default PremiumCursor;
+export default Cursor;

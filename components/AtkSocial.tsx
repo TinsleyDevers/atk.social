@@ -394,10 +394,10 @@ const FeaturedProject = ({ project }: { project: Project }) => {
 };
 
 // Main component
-const EnhancedAtkSocial = () => {
+const AtkSocial = () => {
   const sectionRef = useRef(null);
 
-  // Enhanced project data
+  // Project data
   const projects: Project[] = [
     {
       id: 1,
@@ -743,4 +743,4 @@ const EnhancedAtkSocial = () => {
   );
 };
 
-export default EnhancedAtkSocial;
+export default AtkSocial;

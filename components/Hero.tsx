@@ -178,8 +178,7 @@ const Hero = ({ isLoading }: HeroProps) => {
   const sectionRef = useRef(null);
   const [isReady, setIsReady] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
-
-  // State to track if we're on the client side
+  const [isMounted, setIsMounted] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
@@ -189,19 +188,20 @@ const Hero = ({ isLoading }: HeroProps) => {
     offset: ["start start", "end start"],
   });
 
-  // Use a fixed opacity of 1 for initial render, then control with scroll
   const scrollOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-
-  // Transform values for parallax effects
   const textY = useTransform(scrollYProgress, [0, 1], [0, 200]);
   const smoothTextY = useSpring(textY, { damping: 15, stiffness: 100 });
 
-  // Get window dimensions on client side
+  // Only run client-side code after component mounts
   useEffect(() => {
+    setIsMounted(true);
+
+    // Set window size
     setWindowSize({
       width: window.innerWidth,
       height: window.innerHeight,
     });
+
     const handleResize = () => {
       setWindowSize({
         width: window.innerWidth,
@@ -209,35 +209,24 @@ const Hero = ({ isLoading }: HeroProps) => {
       });
     };
 
-    // Set initial size
-    handleResize();
-
-    // Add event listener
     window.addEventListener("resize", handleResize);
-
-    // Clean up
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
   // Wait for preloader to finish
   useEffect(() => {
     if (!isLoading) {
-      // Small delay after preloader to ensure smooth transition
       const timer = setTimeout(() => {
         setIsReady(true);
       }, 300);
-
       return () => clearTimeout(timer);
     }
   }, [isLoading]);
 
-  // Force visibility after animation completes
   useEffect(() => {
     if (isReady) {
       const timer = setTimeout(() => {
         setHasAnimated(true);
-      }, 2000); // Wait for animations to complete
-
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [isReady]);
@@ -270,34 +259,23 @@ const Hero = ({ isLoading }: HeroProps) => {
       ref={sectionRef}
       className="h-screen w-full relative flex items-center justify-center overflow-hidden bg-black"
     >
-      {/* Background ambient effect */}
-      <div className="absolute inset-0 bg-black z-10">
-        <div className="absolute inset-0 opacity-20 noise-texture"></div>
-        <div className="absolute inset-0 z-20">
-          <div className="absolute -top-96 right-1/4 w-[800px] h-[800px] bg-white/2 rounded-full blur-[150px] opacity-20"></div>
-          <div className="absolute -bottom-96 left-1/4 w-[800px] h-[800px] bg-white/2 rounded-full blur-[150px] opacity-20"></div>
+      {/* Grid lines - Only render complex structure when mounted */}
+      {isMounted ? (
+        <>
+          <div className="absolute inset-0 grid grid-cols-4 z-20 pointer-events-none">
+            <div className="border-l border-white/5 h-full"></div>
+            <div className="border-l border-white/5 h-full"></div>
+            <div className="border-l border-white/5 h-full"></div>
+            <div className="border-l border-r border-white/5 h-full"></div>
+          </div>
 
-          <motion.div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/1 rounded-full blur-[120px]"
-            animate={{
-              opacity: [0.05, 0.1, 0.05],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Grid lines */}
-      <div className="absolute inset-0 grid grid-cols-4 z-20 pointer-events-none">
-        <div className="border-l border-white/5 h-full"></div>
-        <div className="border-l border-white/5 h-full"></div>
-        <div className="border-l border-white/5 h-full"></div>
-        <div className="border-l border-r border-white/5 h-full"></div>
-      </div>
+          <div className="absolute top-[200px] left-0 w-full h-px bg-white/5 z-20"></div>
+          <div className="absolute bottom-[200px] left-0 w-full h-px bg-white/5 z-20"></div>
+        </>
+      ) : (
+        // Simple placeholder structure for server rendering
+        <div className="absolute inset-0 bg-black"></div>
+      )}
 
       {/* Horizontal lines */}
       <div className="absolute top-[200px] left-0 w-full h-px bg-white/5 z-20"></div>

@@ -10,7 +10,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 
-const EnhancedPreloader = ({
+const Preloader = ({
   onLoadingComplete,
 }: {
   onLoadingComplete?: () => void;
@@ -188,9 +188,6 @@ const EnhancedPreloader = ({
         >
           {/* Ambient background elements */}
           <div className="absolute inset-0 bg-[#050505] z-0">
-            {/* Grid pattern overlay */}
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZGVmcz4KPHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxwYXRoIGQ9Ik0gNTAgMCBMIDAgMCAwIDUwIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4wMykiIHN0cm9rZS13aWR0aD0iMSIvPgo8L3BhdHRlcm4+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIgLz4KPC9zdmc+')] opacity-20"></div>
-
             {/* Vertical accent lines */}
             <div className="absolute inset-y-0 left-1/4 w-px bg-white/5"></div>
             <div className="absolute inset-y-0 right-1/4 w-px bg-white/5"></div>
@@ -277,4 +274,4 @@ const EnhancedPreloader = ({
   );
 };
 
-export default EnhancedPreloader;
+export default Preloader;

@@ -1,6 +1,4 @@
-"use client";
-
-import { useRef, useState } from "react";
+import React, { useState, useRef, ReactNode } from "react";
 import {
   motion,
   useScroll,
@@ -9,62 +7,11 @@ import {
   AnimatePresence,
 } from "framer-motion";
 
-// Magnetic button component for interactive elements
-const MagneticButton = ({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => {
-  const buttonRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!buttonRef.current) return;
-
-    const rect = buttonRef.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-
-    const distanceX = e.clientX - centerX;
-    const distanceY = e.clientY - centerY;
-
-    setPosition({
-      x: distanceX * 0.2,
-      y: distanceY * 0.2,
-    });
-  };
-
-  const handleMouseLeave = () => {
-    setPosition({ x: 0, y: 0 });
-  };
-
-  return (
-    <motion.div
-      ref={buttonRef}
-      className={`${className} inline-block`}
-      animate={{ x: position.x, y: position.y }}
-      transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      data-cursor="magnetic"
-    >
-      {children}
-    </motion.div>
-  );
-};
-
-// Enhanced Contact Section
-const EnhancedContact = () => {
-  const sectionRef = useRef<HTMLElement>(null);
-  const [messageSent, setMessageSent] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
-  });
+const Contact = () => {
+  // Refs for scroll animations
+  const sectionRef = useRef(null);
+  const [activeTab, setActiveTab] = useState("general"); // 'general', 'studios', 'social'
+  const [hoverItem, setHoverItem] = useState<string | null>(null);
 
   // Scroll-based animations
   const { scrollYProgress } = useScroll({
@@ -72,646 +19,891 @@ const EnhancedContact = () => {
     offset: ["start end", "end start"],
   });
 
-  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
-  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
+  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.9, 1], [0, 1, 1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.2], [0.8, 1]);
+  const y = useTransform(scrollYProgress, [0, 0.2], [100, 0]);
 
   // Apply spring physics for smooth animations
-  const smoothY = useSpring(y, { damping: 15, stiffness: 100 });
-  const smoothOpacity = useSpring(opacity, { damping: 15, stiffness: 100 });
+  const springConfig = { stiffness: 100, damping: 25, mass: 0.5 };
+  const smoothOpacity = useSpring(opacity, springConfig);
+  const smoothScale = useSpring(scale, springConfig);
+  const smoothY = useSpring(y, springConfig);
 
-  // State for fancy form focus
-  const [activeField, setActiveField] = useState<string | null>(null);
-
-  // Form submit handler
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // In a real app, you would send the form data to your backend here
-    console.log("Form submitted:", formData);
-
-    // Show success message
-    setMessageSent(true);
-
-    // Reset form after delay
-    setTimeout(() => {
-      setMessageSent(false);
-      setFormData({
-        name: "",
-        email: "",
-        subject: "",
-        message: "",
-      });
-    }, 5000);
+  // Get colors based on active tab
+  const getColors = () => {
+    switch (activeTab) {
+      case "studios":
+        return {
+          primary: "from-blue-400 to-blue-600",
+          secondary: "bg-blue-500/10",
+          border: "border-blue-500/30",
+          text: "text-blue-400",
+          hover: "group-hover:text-blue-300",
+          glow: "bg-blue-500/5",
+          gradientBorder: "border-blue-500/20",
+        };
+      case "social":
+        return {
+          primary: "from-purple-400 to-purple-600",
+          secondary: "bg-purple-500/10",
+          border: "border-purple-500/30",
+          text: "text-purple-400",
+          hover: "group-hover:text-purple-300",
+          glow: "bg-purple-500/5",
+          gradientBorder: "border-purple-500/20",
+        };
+      default:
+        return {
+          primary: "from-white/60 to-white/80",
+          secondary: "bg-white/5",
+          border: "border-white/20",
+          text: "text-white",
+          hover: "group-hover:text-gray-200",
+          glow: "bg-white/5",
+          gradientBorder: "border-white/10",
+        };
+    }
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const colors = getColors();
+
+  // Email options
+  const emailOptions = [
+    {
+      id: "general",
+      email: "hello@atkgroup.com",
+      title: "General Inquiries",
+      description: "For all general inquiries and information",
+      icon: (
+        <svg
+          className="w-6 h-6"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M12 21a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z" />
+          <path d="M12 8v4" />
+          <path d="M12 16h.01" />
+        </svg>
+      ),
+    },
+    {
+      id: "studios",
+      email: "studios@atkgroup.com",
+      title: "ATK Studios",
+      description: "For game development and interactive experiences",
+      icon: (
+        <svg
+          className="w-6 h-6"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M17 6H7c-4 0-4 1.5-4 4v4c0 2.5 0 4 4 4h10c4 0 4-1.5 4-4v-4c0-2.5 0-4-4-4Z" />
+          <path d="M17 10h-2v4h2" />
+          <path d="M13 10H7v4h6" />
+        </svg>
+      ),
+    },
+    {
+      id: "social",
+      email: "social@atkgroup.com",
+      title: "ATK Social",
+      description: "For content creation and social media inquiries",
+      icon: (
+        <svg
+          className="w-6 h-6"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M18 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+          <path d="M6 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+          <path d="M18 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+          <path d="M8.59 13.51 15.42 17.49" />
+          <path d="M15.41 6.51 8.59 10.49" />
+        </svg>
+      ),
+    },
+  ];
+
+  // Social links with hover effects
+  const socialLinks = [
+    {
+      id: "twitter",
+      url: "https://twitter.com/atkgroup",
+      icon: (
+        <svg
+          className="w-5 h-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
+        </svg>
+      ),
+      label: "Twitter",
+    },
+    {
+      id: "instagram",
+      url: "https://instagram.com/atkgroup",
+      icon: (
+        <svg
+          className="w-5 h-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+        </svg>
+      ),
+      label: "Instagram",
+    },
+    {
+      id: "linkedin",
+      url: "https://linkedin.com/company/atkgroup",
+      icon: (
+        <svg
+          className="w-5 h-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+          <rect width="4" height="12" x="2" y="9" />
+          <circle cx="4" cy="4" r="2" />
+        </svg>
+      ),
+      label: "LinkedIn",
+    },
+    {
+      id: "discord",
+      url: "https://discord.gg/atkgroup",
+      icon: (
+        <svg
+          className="w-5 h-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M8.5 12H5m11 0h-3.5M9 12a3 3 0 1 0 6 0 3 3 0 0 0-6 0Zm-6.5 4.5c0 2.35 3.5 4.3 7.5 4.3s7.5-1.95 7.5-4.3v-9c0-2.35-3.5-4.3-7.5-4.3s-7.5 1.95-7.5 4.3v9Z" />
+        </svg>
+      ),
+      label: "Discord",
+    },
+  ];
+
+  // 3D floating blocks
+
+  // Magnetic button that moves toward cursor
+  const MagneticButton = ({
+    children,
+    className,
+  }: {
+    children: ReactNode;
+    className?: string;
+  }) => {
+    const buttonRef = useRef<HTMLDivElement>(null);
+    const [position, setPosition] = useState({ x: 0, y: 0 });
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!buttonRef.current) return;
+      const rect = buttonRef.current.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      setPosition({
+        x: (e.clientX - centerX) * 0.2,
+        y: (e.clientY - centerY) * 0.2,
+      });
+    };
+
+    const handleMouseLeave = () => {
+      setPosition({ x: 0, y: 0 });
+    };
+
+    return (
+      <motion.div
+        ref={buttonRef}
+        className={`${className} inline-block`}
+        animate={{ x: position.x, y: position.y }}
+        transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        data-cursor="magnetic"
+      >
+        {children}
+      </motion.div>
+    );
   };
 
   return (
     <section
       id="contact"
       ref={sectionRef}
-      className="min-h-screen py-20 md:py-32 relative overflow-hidden bg-gray-950 noise-bg"
+      className="min-h-screen py-24 relative overflow-hidden bg-black"
     >
-      {/* Gradient top border */}
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500"></div>
-      <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500"></div>
+      {/* Background elements */}
+      <div className="absolute inset-0 noise-texture opacity-30 z-10"></div>
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 z-20"></div>
+      <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 z-20"></div>
+
+      {/* Grid patterns for visual texture */}
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZGVmcz4KPHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxwYXRoIGQ9Ik0gNTAgMCBMIDAgMCAwIDUwIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4wMikiIHN0cm9rZS13aWR0aD0iMSIvPgo8L3BhdHRlcm4+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIgLz4KPC9zdmc+')] opacity-20 z-10"></div>
 
       {/* Ambient light effects */}
-      <div className="absolute -top-48 -left-48 w-96 h-96 bg-blue-600/20 rounded-full filter blur-3xl opacity-40"></div>
-      <div className="absolute top-1/4 right-1/3 w-96 h-96 bg-purple-600/20 rounded-full filter blur-3xl opacity-30"></div>
-      <div className="absolute -bottom-48 -right-48 w-96 h-96 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-full filter blur-3xl opacity-40"></div>
+      <div className="absolute -top-96 -left-96 w-[800px] h-[800px] bg-gradient-to-br from-white/5 to-transparent rounded-full blur-[150px] opacity-20 z-5"></div>
+      <div className="absolute -bottom-96 -right-96 w-[800px] h-[800px] bg-gradient-to-br from-white/5 to-transparent rounded-full blur-[150px] opacity-20 z-5"></div>
 
-      {/* Tech grid background */}
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZGVmcz4KPHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxwYXRoIGQ9Ik0gNTAgMCBMIDAgMCAwIDUwIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMTAwLDEwMCwyNTUsMC4wMikiIHN0cm9rZS13aWR0aD0iMSIvPgo8L3BhdHRlcm4+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIgLz4KPC9zdmc+')] opacity-30 mix-blend-overlay pointer-events-none"></div>
-
-      {/* Decorative elements */}
-      <div className="absolute top-0 left-1/4 w-px h-full bg-white/5"></div>
-      <div className="absolute top-0 right-1/4 w-px h-full bg-white/5"></div>
-
-      <div className="container mx-auto px-6 relative z-10">
+      <div className="container mx-auto px-6 relative z-30">
         <motion.div
           className="mb-16 text-center"
-          style={{ opacity: smoothOpacity, y: smoothY }}
+          style={{
+            opacity: smoothOpacity,
+            scale: smoothScale,
+            y: smoothY,
+          }}
         >
-          <h2 className="text-5xl md:text-7xl font-bold mb-8 playfair tracking-tighter text-white">
-            Contact ATK
+          <h2 className="text-6xl md:text-8xl font-bold playfair tracking-tighter mb-6 relative">
+            <span className="relative inline-block">
+              <span className="relative z-10">Connect</span>
+              <motion.span
+                className="absolute -bottom-3 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500"
+                initial={{ scaleX: 0 }}
+                whileInView={{ scaleX: 1 }}
+                viewport={{ once: true }}
+                transition={{
+                  duration: 1,
+                  ease: [0.22, 1, 0.36, 1],
+                  delay: 0.2,
+                }}
+                style={{ originX: 0 }}
+              />
+            </span>
           </h2>
-          <div className="h-1 w-24 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 mx-auto mb-8"></div>
-          <p className="text-xl max-w-2xl mx-auto manrope text-gray-300">
-            Ready to transform your ideas into extraordinary experiences?
-            Connect with us to discuss how we can collaborate on your next
-            project.
-          </p>
-        </motion.div>
 
-        {/* Main contact layout - Two column grid with animation */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-6xl mx-auto">
-          {/* Left side - Contact form */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <AnimatePresence mode="wait">
-              {!messageSent ? (
-                <motion.form
-                  key="contactForm"
-                  className="bg-black/20 backdrop-blur-sm rounded-sm border border-white/5 p-8 relative"
-                  onSubmit={handleSubmit}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  {/* Corner accents */}
-                  <div className="absolute top-0 left-0 w-12 h-12 border-t border-l border-gradient-to-br from-blue-500/30 to-purple-500/30"></div>
-                  <div className="absolute top-0 right-0 w-12 h-12 border-t border-r border-gradient-to-bl from-purple-500/30 to-blue-500/30"></div>
-                  <div className="absolute bottom-0 left-0 w-12 h-12 border-b border-l border-gradient-to-tr from-blue-500/30 to-purple-500/30"></div>
-                  <div className="absolute bottom-0 right-0 w-12 h-12 border-b border-r border-gradient-to-tl from-purple-500/30 to-blue-500/30"></div>
-
-                  <h3 className="text-2xl font-bold mb-6 text-white">
-                    Send us a message
-                  </h3>
-
-                  <div className="space-y-4">
-                    <div className="relative">
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        onFocus={() => setActiveField("name")}
-                        onBlur={() => setActiveField(null)}
-                        placeholder="Your Name"
-                        className="w-full bg-black/30 border border-white/10 px-4 py-3 text-white focus:outline-none transition-colors duration-300"
-                        required
-                      />
-                      <motion.div
-                        className="absolute bottom-0 left-0 h-px bg-gradient-to-r from-blue-500 to-purple-500 w-0"
-                        animate={{
-                          width: activeField === "name" ? "100%" : "0%",
-                        }}
-                        transition={{ duration: 0.3 }}
-                      />
-                    </div>
-
-                    <div className="relative">
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        onFocus={() => setActiveField("email")}
-                        onBlur={() => setActiveField(null)}
-                        placeholder="Your Email"
-                        className="w-full bg-black/30 border border-white/10 px-4 py-3 text-white focus:outline-none transition-colors duration-300"
-                        required
-                      />
-                      <motion.div
-                        className="absolute bottom-0 left-0 h-px bg-gradient-to-r from-blue-500 to-purple-500 w-0"
-                        animate={{
-                          width: activeField === "email" ? "100%" : "0%",
-                        }}
-                        transition={{ duration: 0.3 }}
-                      />
-                    </div>
-
-                    <div className="relative">
-                      <input
-                        type="text"
-                        name="subject"
-                        value={formData.subject}
-                        onChange={handleChange}
-                        onFocus={() => setActiveField("subject")}
-                        onBlur={() => setActiveField(null)}
-                        placeholder="Subject"
-                        className="w-full bg-black/30 border border-white/10 px-4 py-3 text-white focus:outline-none transition-colors duration-300"
-                        required
-                      />
-                      <motion.div
-                        className="absolute bottom-0 left-0 h-px bg-gradient-to-r from-blue-500 to-purple-500 w-0"
-                        animate={{
-                          width: activeField === "subject" ? "100%" : "0%",
-                        }}
-                        transition={{ duration: 0.3 }}
-                      />
-                    </div>
-
-                    <div className="relative">
-                      <textarea
-                        name="message"
-                        value={formData.message}
-                        onChange={handleChange}
-                        onFocus={() => setActiveField("message")}
-                        onBlur={() => setActiveField(null)}
-                        placeholder="Your Message"
-                        rows={5}
-                        className="w-full bg-black/30 border border-white/10 px-4 py-3 text-white focus:outline-none transition-colors duration-300"
-                        required
-                      />
-                      <motion.div
-                        className="absolute bottom-0 left-0 h-px bg-gradient-to-r from-blue-500 to-purple-500 w-0"
-                        animate={{
-                          width: activeField === "message" ? "100%" : "0%",
-                        }}
-                        transition={{ duration: 0.3 }}
-                      />
-                    </div>
-
-                    <MagneticButton className="w-full">
-                      <button
-                        type="submit"
-                        className="w-full bg-gradient-to-r from-blue-600/20 to-purple-600/20 hover:from-blue-600/30 hover:to-purple-600/30 border border-white/10 text-white py-3 font-medium uppercase tracking-wider text-sm transition-all duration-300 relative overflow-hidden group"
-                        data-cursor="text"
-                        data-cursor-text="Send"
-                      >
-                        <span className="relative z-10 flex items-center justify-center">
-                          <span>Send Message</span>
-                          <svg
-                            className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M14.4301 5.93005L20.5001 12.0001L14.4301 18.0701"
-                              stroke="currentColor"
-                              strokeWidth="1.5"
-                              strokeMiterlimit="10"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                            <path
-                              d="M3.5 12H20.33"
-                              stroke="currentColor"
-                              strokeWidth="1.5"
-                              strokeMiterlimit="10"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                        </span>
-                        <span className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></span>
-                      </button>
-                    </MagneticButton>
-                  </div>
-                </motion.form>
-              ) : (
-                <motion.div
-                  key="successMessage"
-                  className="bg-black/20 backdrop-blur-sm rounded-sm border border-white/5 p-8 relative flex flex-col items-center justify-center min-h-[400px]"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.1 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <div className="text-center">
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 200,
-                        damping: 15,
-                      }}
-                      className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 mx-auto flex items-center justify-center mb-6"
-                    >
-                      <svg
-                        className="w-10 h-10 text-green-400"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M7.75 12L10.58 14.83L16.25 9.17"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </motion.div>
-                    <h3 className="text-2xl font-bold mb-2 text-white">
-                      Message Sent!
-                    </h3>
-                    <p className="text-gray-400 mb-6">
-                      We&apos;ll get back to you as soon as possible.
-                    </p>
-                    <motion.button
-                      onClick={() => setMessageSent(false)}
-                      className="text-blue-400 hover:text-blue-300 flex items-center mx-auto"
-                      whileHover={{ x: -3 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <svg
-                        className="w-4 h-4 mr-2 transform rotate-180"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M14.4301 5.93005L20.5001 12.0001L14.4301 18.0701"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeMiterlimit="10"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M3.5 12H20.33"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeMiterlimit="10"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      <span>Send another message</span>
-                    </motion.button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-
-          {/* Right side - Contact methods */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-          >
-            {/* Email contact card */}
-            <div className="bg-black/20 backdrop-blur-sm rounded-sm border border-white/5 p-8 mb-8 relative overflow-hidden group">
-              <div className="absolute -top-16 -right-16 w-32 h-32 bg-blue-500/5 rounded-full blur-xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
-              <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-purple-500/5 rounded-full blur-xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
-
-              {/* Corner accents */}
-              <div className="absolute top-0 left-0 w-6 h-6 border-t border-l border-white/10 -translate-x-px -translate-y-px"></div>
-              <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-white/10 translate-x-px -translate-y-px"></div>
-              <div className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-white/10 -translate-x-px translate-y-px"></div>
-              <div className="absolute bottom-0 right-0 w-6 h-6 border-b border-r border-white/10 translate-x-px translate-y-px"></div>
-
-              <div className="text-center mb-4">
-                <motion.div
-                  className="inline-block w-16 h-16 rounded-full bg-gradient-to-br from-blue-600/10 to-purple-600/10 border border-white/10 flex items-center justify-center mb-4"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-white"
-                  >
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                    <polyline points="22,6 12,13 2,6"></polyline>
-                  </svg>
-                </motion.div>
-
-                <h3 className="text-2xl font-bold mb-2 playfair bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">
-                  Email Us
-                </h3>
-
-                <p className="text-gray-300 mb-6">
-                  Send us a message and we&apos;ll get back to you shortly
-                </p>
-
-                <MagneticButton>
-                  <a
-                    href="mailto:info@atkgroup.com"
-                    className="text-xl font-medium text-white relative inline-block group"
-                    data-cursor="link"
-                    data-cursor-text="Email"
-                    data-cursor-rotate="true"
-                  >
-                    <span className="relative z-10">info@atkgroup.com</span>
-                    <span className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 transform origin-left transition-transform duration-300 group-hover:scale-x-100 scale-x-0"></span>
-                  </a>
-                </MagneticButton>
-              </div>
-            </div>
-
-            {/* Discord card */}
-            <div className="bg-black/20 backdrop-blur-sm rounded-sm border border-white/5 p-8 relative overflow-hidden group">
-              <div className="absolute -top-16 -left-16 w-32 h-32 bg-blue-500/5 rounded-full blur-xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
-              <div className="absolute -bottom-16 -right-16 w-32 h-32 bg-purple-500/5 rounded-full blur-xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
-
-              {/* Corner accents */}
-              <div className="absolute top-0 left-0 w-6 h-6 border-t border-l border-white/10 -translate-x-px -translate-y-px"></div>
-              <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-white/10 translate-x-px -translate-y-px"></div>
-              <div className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-white/10 -translate-x-px translate-y-px"></div>
-              <div className="absolute bottom-0 right-0 w-6 h-6 border-b border-r border-white/10 translate-x-px translate-y-px"></div>
-
-              <div className="text-center mb-4">
-                <motion.div
-                  className="inline-block w-16 h-16 rounded-full bg-gradient-to-br from-blue-600/10 to-purple-600/10 border border-white/10 flex items-center justify-center mb-4"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-white"
-                  >
-                    <path d="M9 8h-3v-2h3" />
-                    <path d="M6 14v-3" />
-                    <path d="M9 8h3" />
-                    <path d="M12 14v-3" />
-                    <path d="M18 8h-3v-2h3" />
-                    <path d="M15 14v-3" />
-                    <path d="M3 5V3h18v2" />
-                    <path d="M3 21h18" />
-                    <path d="M3 21v-9" />
-                    <path d="M21 21v-9" />
-                  </svg>
-                </motion.div>
-
-                <h3 className="text-2xl font-bold mb-2 playfair bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">
-                  Join Our Discord
-                </h3>
-
-                <p className="text-gray-300 mb-6">
-                  Connect with our community and get real-time support
-                </p>
-
-                <MagneticButton>
-                  <a
-                    href="https://discord.gg/atk"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-8 py-3 bg-gradient-to-r from-blue-600/20 to-purple-600/20 hover:from-blue-600/30 hover:to-purple-600/30 border border-white/10 text-white inline-flex items-center justify-center font-medium transition-colors duration-300 relative overflow-hidden group"
-                    data-cursor="link"
-                    data-cursor-text="Join"
-                  >
-                    <svg
-                      className="w-5 h-5 mr-2"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path d="M20.317 4.15557C18.7873 3.45373 17.147 2.92531 15.4319 2.6001C15.4007 2.59324 15.3695 2.60782 15.3534 2.63583C15.1424 2.99084 14.9087 3.45258 14.7451 3.81548C12.9004 3.51204 11.0652 3.51204 9.25832 3.81548C9.09465 3.43343 8.85248 2.99084 8.64057 2.63583C8.62449 2.60896 8.59328 2.59438 8.56205 2.6001C6.84791 2.92417 5.20766 3.45259 3.67681 4.15557C3.66366 4.16015 3.65145 4.16929 3.64321 4.18071C0.533932 8.83838 -0.31994 13.3909 0.0991801 17.8825C0.101072 17.9072 0.11449 17.9305 0.131886 17.946C2.18321 19.4685 4.17171 20.3972 6.12328 21.0279C6.15451 21.038 6.18761 21.0265 6.20748 21.0013C6.66913 20.3566 7.08064 19.6739 7.43348 18.9541C7.4553 18.9103 7.43442 18.8594 7.39096 18.8427C6.73818 18.5923 6.1176 18.2836 5.51945 17.9396C5.47122 17.9114 5.46715 17.8428 5.51053 17.8089C5.63085 17.7201 5.75117 17.6268 5.86565 17.5334C5.88646 17.5152 5.91581 17.5129 5.93756 17.5238C9.88504 19.3107 14.1416 19.3107 18.0398 17.5238C18.0615 17.5117 18.0909 17.514 18.1128 17.5322C18.2273 17.6268 18.3476 17.7201 18.4679 17.8089C18.5113 17.8428 18.5072 17.9114 18.459 17.9396C17.8609 18.2894 17.2403 18.5923 16.5875 18.8415C16.544 18.8583 16.5243 18.9103 16.5461 18.9541C16.905 19.6727 17.3165 20.3554 17.771 21.0001C17.7897 21.0265 17.8239 21.038 17.8552 21.0279C19.8195 20.3972 21.808 19.4685 23.8593 17.946C23.8779 17.9305 23.8901 17.9084 23.892 17.8837C24.3989 12.6184 23.0577 8.10634 20.3446 4.18071C20.3375 4.16929 20.3253 4.16015 20.3122 4.15557H20.317Z" />
-                    </svg>
-                    <span className="relative z-10">Join Discord</span>
-                    <span className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></span>
-                  </a>
-                </MagneticButton>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Additional contact categories */}
-        <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {[
-            {
-              title: "Business Inquiries",
-              description:
-                "For business opportunities and partnerships, please email us with &quot;Business&quot; in the subject line.",
-              icon: (
-                <svg
-                  className="w-6 h-6 text-blue-400"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <polyline
-                    points="14 2 14 8 20 8"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <line
-                    x1="16"
-                    y1="13"
-                    x2="8"
-                    y2="13"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <line
-                    x1="16"
-                    y1="17"
-                    x2="8"
-                    y2="17"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <line
-                    x1="10"
-                    y1="9"
-                    x2="8"
-                    y2="9"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              ),
-              delay: 0.1,
-              gradient: "from-blue-600/10 to-blue-600/20",
-            },
-            {
-              title: "Support",
-              description:
-                "Need assistance with our products or services? Our team is ready to help.",
-              icon: (
-                <svg
-                  className="w-6 h-6 text-purple-400"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              ),
-              delay: 0.2,
-              gradient: "from-purple-600/10 to-purple-600/20",
-            },
-            {
-              title: "FAQ",
-              description:
-                "Check our frequently asked questions or email us your specific questions.",
-              icon: (
-                <svg
-                  className="w-6 h-6 text-gradient-blue-purple"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <line
-                    x1="12"
-                    y1="17"
-                    x2="12.01"
-                    y2="17"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              ),
-              delay: 0.3,
-              gradient: "from-blue-600/10 to-purple-600/10",
-            },
-          ].map((item, index) => (
-            <motion.div
-              key={index}
+          <p className="text-xl max-w-2xl mx-auto manrope text-gray-300 relative">
+            <motion.span
+              className="inline-block"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: item.delay }}
-              className="bg-black/20 backdrop-blur-sm rounded-sm border border-white/5 p-6 relative overflow-hidden group hover:border-white/10 transition-all duration-300"
+              transition={{ duration: 0.8, delay: 0.4 }}
             >
-              <div
-                className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${item.gradient} rounded-full blur-xl transform translate-x-1/2 -translate-y-1/2 opacity-40 group-hover:opacity-60 transition-opacity duration-300`}
-              ></div>
+              Let&apos;s create something extraordinary together.
+            </motion.span>
+          </p>
+        </motion.div>
 
-              <div className="flex items-center mb-4">
-                <div
-                  className={`w-10 h-10 rounded-sm bg-gradient-to-br ${item.gradient} border border-white/10 flex items-center justify-center mr-3`}
-                >
-                  {item.icon}
-                </div>
-                <h3 className="text-lg font-bold text-white">{item.title}</h3>
-              </div>
-              <p className="text-gray-400 text-sm pl-13">{item.description}</p>
-
-              {/* Hover border animation */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                <div className="absolute top-0 left-0 w-0 h-0 border-t border-l border-white/20 group-hover:w-full group-hover:h-full transition-all duration-700"></div>
-                <div className="absolute bottom-0 right-0 w-0 h-0 border-b border-r border-white/20 group-hover:w-full group-hover:h-full transition-all duration-700"></div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Inspirational ending */}
-        <div className="mt-16 text-center">
+        {/* Main contact section */}
+        <div className="max-w-6xl mx-auto">
+          {/* Segmented control for switching between contact types */}
           <motion.div
+            className="flex justify-center mb-16"
             initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <div className="bg-black/30 backdrop-blur-sm border border-white/10 p-1 inline-flex rounded-sm">
+              {emailOptions.map((option) => (
+                <button
+                  key={option.id}
+                  className={`px-5 py-3 relative ${
+                    activeTab === option.id ? "text-white" : "text-gray-400"
+                  } transition-colors`}
+                  onClick={() => setActiveTab(option.id)}
+                >
+                  <span className="relative z-10">{option.title}</span>
+                  {activeTab === option.id && (
+                    <motion.div
+                      className={`absolute inset-0 ${colors.secondary} z-0`}
+                      layoutId="activeTab"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Contact showcase */}
+          <motion.div
+            className="mb-24"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.6 }}
+                className="relative bg-black/20 backdrop-blur-md border border-white/10 overflow-hidden"
+              >
+                {/* Background gradient based on active tab */}
+                <div
+                  className={`absolute inset-0 ${colors.glow} opacity-30 z-0`}
+                ></div>
+
+                {/* Content */}
+                <div className="relative z-10 p-12 md:p-16 lg:p-20">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                    {/* Left side - Text info */}
+                    <div>
+                      <motion.div
+                        className={`inline-flex items-center space-x-3 mb-6 ${colors.text}`}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.4, delay: 0.1 }}
+                      >
+                        {/* Use optional chaining */}
+                        {
+                          emailOptions.find((option) => option.id === activeTab)
+                            ?.icon
+                        }
+                        <span className="text-sm uppercase tracking-wider font-medium">
+                          {activeTab === "general"
+                            ? "Contact Us"
+                            : `ATK ${
+                                activeTab.charAt(0).toUpperCase() +
+                                activeTab.slice(1)
+                              }`}
+                        </span>
+                      </motion.div>
+
+                      <motion.h3
+                        className="text-4xl md:text-5xl font-bold playfair mb-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: 0.2 }}
+                      >
+                        Let&apos;s start a
+                        <span className={`${colors.text} ml-3`}>
+                          conversation
+                        </span>
+                      </motion.h3>
+
+                      <motion.div
+                        className={`h-1 w-16 bg-gradient-to-r ${colors.primary} mb-8`}
+                        initial={{ scaleX: 0 }}
+                        animate={{ scaleX: 1 }}
+                        transition={{ duration: 0.6, delay: 0.4 }}
+                        style={{ originX: 0 }}
+                      />
+
+                      <motion.p
+                        className="text-lg text-gray-300 mb-8"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: 0.3 }}
+                      >
+                        {activeTab === "studios" &&
+                          "Have a game or interactive project in mind? Let's discuss your vision and how we can bring it to life."}
+                        {activeTab === "social" &&
+                          "Ready to elevate your social media presence? Reach out to discuss strategies tailored to your brand."}
+                        {activeTab === "general" &&
+                          "Have a project or idea? We'd love to hear from you and explore how we can collaborate."}
+                      </motion.p>
+
+                      {/* Email button */}
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: 0.5 }}
+                      >
+                        <MagneticButton className="inline-block">
+                          <a
+                            href={`mailto:${
+                              emailOptions.find(
+                                (option) => option.id === activeTab
+                              )?.email || "hello@atkgroup.com"
+                            }`}
+                            className={`group flex items-center space-x-3 ${colors.text} hover:opacity-80 transition-opacity`}
+                            data-cursor="text"
+                            data-cursor-text="Email"
+                          >
+                            <div
+                              className={`w-12 h-12 rounded-full ${colors.secondary} border ${colors.border} flex items-center justify-center`}
+                            >
+                              <svg
+                                className="w-5 h-5"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <rect
+                                  width="20"
+                                  height="16"
+                                  x="2"
+                                  y="4"
+                                  rx="2"
+                                />
+                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                              </svg>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-lg font-medium">
+                                {emailOptions.find(
+                                  (option) => option.id === activeTab
+                                )?.email || "hello@atkgroup.com"}
+                              </span>
+                              <span className="text-sm text-gray-400">
+                                Click to send an email
+                              </span>
+                            </div>
+
+                            <svg
+                              className="w-5 h-5 transform transition-transform duration-300 group-hover:translate-x-2"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M5 12h14M12 5l7 7-7 7" />
+                            </svg>
+                          </a>
+                        </MagneticButton>
+                      </motion.div>
+                    </div>
+
+                    {/* Right side - Visual element */}
+                    <div className="hidden md:block">
+                      <motion.div
+                        className="relative aspect-square"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                      >
+                        <div
+                          className={`absolute inset-0 ${colors.secondary} backdrop-blur-lg border ${colors.border} bg-opacity-30 rounded-sm overflow-hidden`}
+                        >
+                          {/* Abstract decorative patterns based on active tab */}
+                          {activeTab === "studios" && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <motion.div
+                                className="absolute w-40 h-40 rounded-full border border-blue-500/20"
+                                animate={{
+                                  scale: [1, 1.1, 1],
+                                  rotate: [0, 90, 0],
+                                  opacity: [0.3, 0.5, 0.3],
+                                }}
+                                transition={{
+                                  duration: 10,
+                                  repeat: Infinity,
+                                  ease: "linear",
+                                }}
+                              />
+
+                              <motion.div
+                                className="absolute w-60 h-60 border border-blue-500/10"
+                                style={{ borderRadius: "30%" }}
+                                animate={{
+                                  rotate: [0, 360],
+                                  borderRadius: ["30%", "40%", "30%"],
+                                }}
+                                transition={{
+                                  duration: 20,
+                                  repeat: Infinity,
+                                  ease: "linear",
+                                }}
+                              />
+
+                              <motion.div
+                                className="absolute w-32 h-32"
+                                style={{ borderRadius: "60%" }}
+                                animate={{ rotate: [360, 0] }}
+                                transition={{
+                                  duration: 30,
+                                  repeat: Infinity,
+                                  ease: "linear",
+                                }}
+                              >
+                                <div
+                                  className="w-full h-full border border-blue-500/30"
+                                  style={{ borderRadius: "60%" }}
+                                />
+                              </motion.div>
+
+                              <motion.div
+                                className="w-20 h-20 bg-blue-500/5 backdrop-blur-lg"
+                                animate={{
+                                  rotate: [0, 180, 0],
+                                }}
+                                transition={{
+                                  duration: 10,
+                                  repeat: Infinity,
+                                  ease: "linear",
+                                }}
+                              />
+                            </div>
+                          )}
+
+                          {activeTab === "social" && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <motion.div
+                                className="absolute grid grid-cols-3 gap-3"
+                                animate={{ rotate: [0, 10, 0, -10, 0] }}
+                                transition={{
+                                  duration: 10,
+                                  repeat: Infinity,
+                                  ease: "linear",
+                                }}
+                              >
+                                {Array.from({ length: 9 }).map((_, i) => (
+                                  <motion.div
+                                    key={i}
+                                    className={`w-8 h-8 bg-purple-500/${
+                                      5 + i * 3
+                                    } rounded-sm`}
+                                    initial={{ opacity: 0.5 }}
+                                    animate={{
+                                      opacity: [0.3, 0.6, 0.3],
+                                      scale: [1, 1.1, 1],
+                                    }}
+                                    transition={{
+                                      duration: 3 + Math.random() * 2,
+                                      delay: i * 0.2,
+                                      repeat: Infinity,
+                                    }}
+                                  />
+                                ))}
+                              </motion.div>
+
+                              <motion.div
+                                className="absolute w-60 h-60 border border-purple-500/10 rounded-full"
+                                animate={{ scale: [1, 1.1, 1] }}
+                                transition={{ duration: 8, repeat: Infinity }}
+                              />
+                            </div>
+                          )}
+
+                          {activeTab === "general" && (
+                            <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+                              {/* Main ATK logo indicator */}
+                              <div className="relative w-56 h-56">
+                                <motion.div
+                                  className="absolute inset-0 w-full h-full rounded-full border border-white/20"
+                                  animate={{
+                                    scale: [1, 1.05, 1],
+                                    rotate: 360,
+                                  }}
+                                  transition={{
+                                    scale: {
+                                      duration: 4,
+                                      repeat: Infinity,
+                                      repeatType: "reverse",
+                                    },
+                                    rotate: {
+                                      duration: 30,
+                                      repeat: Infinity,
+                                      ease: "linear",
+                                    },
+                                  }}
+                                />
+
+                                {/* Subtle background elements */}
+                                <motion.div
+                                  className="absolute inset-0 m-auto w-32 h-32 bg-white/5 backdrop-blur-sm rounded-full"
+                                  animate={{
+                                    scale: [1, 1.2, 1],
+                                    opacity: [0.3, 0.5, 0.3],
+                                  }}
+                                  transition={{
+                                    duration: 6,
+                                    repeat: Infinity,
+                                    repeatType: "reverse",
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Corner accents */}
+                          <div className="absolute top-0 left-0 w-10 h-10 border-t border-l border-white/20 z-10"></div>
+                          <div className="absolute top-0 right-0 w-10 h-10 border-t border-r border-white/20 z-10"></div>
+                          <div className="absolute bottom-0 left-0 w-10 h-10 border-b border-l border-white/20 z-10"></div>
+                          <div className="absolute bottom-0 right-0 w-10 h-10 border-b border-r border-white/20 z-10"></div>
+                        </div>
+                      </motion.div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Decorative corner elements */}
+                <div className="absolute top-0 left-0 w-20 h-20 border-t border-l border-white/10 pointer-events-none"></div>
+                <div className="absolute top-0 right-0 w-20 h-20 border-t border-r border-white/10 pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 w-20 h-20 border-b border-l border-white/10 pointer-events-none"></div>
+                <div className="absolute bottom-0 right-0 w-20 h-20 border-b border-r border-white/10 pointer-events-none"></div>
+              </motion.div>
+            </AnimatePresence>
+          </motion.div>
+
+          {/* Social links with hover effects */}
+          <motion.div
+            className="mb-20 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+          >
+            <h3 className="text-xl font-medium mb-8">Connect with us</h3>
+
+            <div className="flex justify-center space-x-8">
+              {socialLinks.map((social, index) => (
+                <MagneticButton key={social.id} className="inline-block">
+                  <motion.a
+                    href={social.url}
+                    className="group relative"
+                    data-cursor="text"
+                    data-cursor-text={social.label}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.1 * index }}
+                    onMouseEnter={() => setHoverItem(social.id)}
+                    onMouseLeave={() => setHoverItem(null)}
+                  >
+                    <div className="relative">
+                      <div
+                        className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                          hoverItem === social.id
+                            ? "bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-blue-500/20 border-white/20"
+                            : "bg-black/30 border-white/10"
+                        } border transition-all duration-300`}
+                      >
+                        <div
+                          className={`${
+                            hoverItem === social.id
+                              ? "text-white"
+                              : "text-gray-400"
+                          } transition-colors duration-300`}
+                        >
+                          {social.icon}
+                        </div>
+                      </div>
+
+                      <AnimatePresence>
+                        {hoverItem === social.id && (
+                          <motion.div
+                            className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs font-medium tracking-wide"
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            {social.label}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </motion.a>
+                </MagneticButton>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Location section */}
+          <motion.div
+            className="text-center mb-32"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              {[
+                {
+                  title: "New York",
+                  address: "123 Broadway, NY 10001",
+                  icon: (
+                    <svg
+                      className="w-5 h-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                      <circle cx="12" cy="10" r="3" />
+                    </svg>
+                  ),
+                },
+                {
+                  title: "Los Angeles",
+                  address: "456 Venice Blvd, LA 90001",
+                  icon: (
+                    <svg
+                      className="w-5 h-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                      <circle cx="12" cy="10" r="3" />
+                    </svg>
+                  ),
+                },
+                {
+                  title: "London",
+                  address: "789 Oxford St, London W1A 1AB",
+                  icon: (
+                    <svg
+                      className="w-5 h-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                      <circle cx="12" cy="10" r="3" />
+                    </svg>
+                  ),
+                },
+              ].map((location, index) => (
+                <motion.div
+                  key={location.title}
+                  className="bg-black/20 backdrop-blur-sm p-6 relative overflow-hidden group border border-white/10"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: 0.2 + index * 0.1 }}
+                  whileHover={{ y: -5 }}
+                >
+                  <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-gradient-to-br from-blue-600/5 via-purple-600/5 to-blue-600/5 rounded-full filter blur-xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
+
+                  <div className="flex flex-col items-center relative z-10">
+                    <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center mb-3 text-gray-300">
+                      {location.icon}
+                    </div>
+                    <h4 className="text-lg font-medium text-white mb-1">
+                      {location.title}
+                    </h4>
+                    <p className="text-sm text-gray-400">{location.address}</p>
+                  </div>
+
+                  {/* Border animation on hover */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <div className="absolute top-0 left-0 w-0 h-0 border-t border-l border-white/20 group-hover:w-full group-hover:h-full transition-all duration-700"></div>
+                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b border-r border-white/20 group-hover:w-full group-hover:h-full transition-all duration-700"></div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Final CTA */}
+          <motion.div
+            className="text-center max-w-3xl mx-auto"
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
-            <h3 className="text-xl font-medium mb-2 playfair">
-              Ready to transform your digital presence?
+            <h3 className="text-3xl md:text-4xl font-bold playfair mb-8 leading-tight">
+              <span className="block">
+                Ready to embark on a creative journey?
+              </span>
+              <span className={`${colors.text}`}>
+                Let&apos;s build something great.
+              </span>
             </h3>
-            <p className="text-gray-400 max-w-lg mx-auto mb-8">
-              Join the growing list of brands we&apos;ve helped elevate through
-              content creation and immersive experiences.
-            </p>
 
-            {/* Decorative line */}
-            <div className="h-px w-16 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 mx-auto"></div>
+            <MagneticButton className="inline-block">
+              <a
+                href={`mailto:${
+                  emailOptions.find((option) => option.id === activeTab)
+                    ?.email || "hello@atkgroup.com"
+                }`}
+                className="group px-10 py-4 mt-4 bg-gradient-to-r from-blue-900/20 via-purple-900/20 to-blue-900/20 text-white font-medium tracking-wider text-sm relative overflow-hidden border border-white/10 inline-block"
+                data-cursor="text"
+                data-cursor-text="Email Us"
+                data-cursor-rotate="true"
+              >
+                <span className="relative z-10 transition-transform duration-500 group-hover:translate-y-[-120%] inline-block">
+                  Get in Touch
+                </span>
+                <span className="absolute inset-0 flex items-center justify-center text-white transition-transform duration-500 translate-y-[120%] group-hover:translate-y-0">
+                  Reach Out to Us
+                </span>
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 group-hover:w-full transition-all duration-300 ease-in-out"></span>
+              </a>
+            </MagneticButton>
           </motion.div>
+        </div>
+      </div>
+
+      {/* Marquee banner */}
+      <div className="absolute bottom-0 left-0 w-full overflow-hidden">
+        <div className="py-4 bg-gradient-to-r from-blue-900/5 via-purple-900/5 to-blue-900/5 border-t border-b border-white/5 overflow-hidden">
+          <div className="whitespace-nowrap inline-flex animate-marquee">
+            {Array(2)
+              .fill(0)
+              .map((_, i) => (
+                <div key={i} className="inline-flex items-center gap-8">
+                  {[
+                    "CREATE",
+                    "IMMERSE",
+                    "TRANSFORM",
+                    "CONNECT",
+                    "INNOVATE",
+                    "EXPERIENCE",
+                    "DESIGN",
+                    "DEVELOP",
+                  ].map((text, index) => (
+                    <span
+                      key={index}
+                      className="text-2xl font-extralight text-white/20 mx-8"
+                    >
+                      {text}
+                    </span>
+                  ))}
+                </div>
+              ))}
+          </div>
         </div>
       </div>
     </section>
   );
 };
 
-export default EnhancedContact;
+export default Contact;

@@ -497,7 +497,7 @@ const itemVariants: Variants = {
 };
 
 // Main component
-const EnhancedTeam = () => {
+const Team = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
 
@@ -695,10 +695,6 @@ const EnhancedTeam = () => {
         </motion.div>
       </div>
 
-      {/* Ambient light effect */}
-      <div className="absolute -top-48 -left-48 w-96 h-96 bg-white/5 rounded-full filter blur-[80px] opacity-30"></div>
-      <div className="absolute -bottom-48 -right-48 w-96 h-96 bg-white/5 rounded-full filter blur-[80px] opacity-30"></div>
-
       {/* Team member detail modal */}
       <TeamMemberModal
         member={selectedMember}
@@ -708,4 +704,4 @@ const EnhancedTeam = () => {
   );
 };
 
-export default EnhancedTeam;
+export default Team;

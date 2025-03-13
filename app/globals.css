@@ -316,7 +316,7 @@ option {
   box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.3);
 }
 
-/* Ambient glow effect for sections */
+/* Ambient glow effect */
 .ambient-glow {
   position: relative;
 }
@@ -348,7 +348,7 @@ option {
   transform: rotate(-2deg);
 }
 
-/* Improved input field styling */
+/* input field styling */
 .input-luxury {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -374,7 +374,7 @@ option {
   cursor: auto !important;
 }
 
-/* This ensures the cursor isn't hidden on the privacy page */
+/* This ensures the cursor isn't hidden on non main pages */
 .default-cursor-page [data-cursor],
 .default-cursor-page a,
 .default-cursor-page button {

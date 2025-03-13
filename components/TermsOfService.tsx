@@ -217,10 +217,6 @@ const TermsOfService = () => {
         {/* Hero section */}
         <section className="min-h-[60vh] flex items-center justify-center relative overflow-hidden py-32">
           <div className="absolute inset-0 z-0">
-            {/* Ambient light effect */}
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-white/5 rounded-full filter blur-[150px] opacity-50 z-10"></div>
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-white/5 rounded-full filter blur-[150px] opacity-50 z-10"></div>
-
             {/* Grid lines for visual structure */}
             <div className="absolute inset-0 grid grid-cols-4 z-0">
               <div className="border-l border-white/5 h-full"></div>
