@@ -9,6 +9,7 @@ import {
   useInView,
 } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 
 // Project definition
 interface Project {
@@ -356,8 +357,8 @@ const FeaturedProject = ({ project }: { project: Project }) => {
         </div>
 
         <MagneticButton>
-          <a
-            href="#contact"
+          <Link
+            href="/projects/hot-ones-event"
             className="inline-flex items-center group"
             data-cursor="text"
             data-cursor-text="View"
@@ -368,7 +369,7 @@ const FeaturedProject = ({ project }: { project: Project }) => {
             <span className="relative w-10 h-px bg-white/30 overflow-hidden">
               <span className="absolute inset-0 w-full h-full bg-purple-400 -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out"></span>
             </span>
-          </a>
+          </Link>
         </MagneticButton>
       </div>
     </motion.div>

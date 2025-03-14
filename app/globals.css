@@ -374,6 +374,8 @@ option {
   cursor: auto !important;
 }
 
+/* maybe in the future just revert it and have default cursor auto on 
+every page but the main one.*\
 /* This ensures the cursor isn't hidden on non main pages */
 .default-cursor-page [data-cursor],
 .default-cursor-page a,
