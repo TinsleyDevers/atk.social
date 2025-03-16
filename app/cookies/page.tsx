@@ -1,6 +1,6 @@
 "use client";
 
-import CookiesPage from "@/components/CookiesPage";
+import CookiesPage from "@/components/pages/CookiesPage";
 
 export default function CookiesPageRoute() {
   return (

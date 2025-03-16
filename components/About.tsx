@@ -756,7 +756,7 @@ const About = () => {
                 </p>
 
                 <motion.a
-                  href={`#${activeTab}`}
+                  href={activeTab === "social" ? "/social" : "/studio"}
                   className={`inline-flex items-center space-x-2 group w-fit ${activeTabContent.textAccent}`}
                   whileHover="whileHover"
                   variants={cardVariants}

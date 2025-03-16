@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   motion,
-  useSpring,
   useMotionValue,
+  useSpring,
   useTransform,
   AnimatePresence,
 } from "framer-motion";
 
 const Cursor = () => {
-  // Cursor state
+  // Cursor states
   const [cursorType, setCursorType] = useState("default");
   const [cursorText, setCursorText] = useState("");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -18,122 +18,86 @@ const Cursor = () => {
   const [shouldRotate, setShouldRotate] = useState(false);
   const [showRipple, setShowRipple] = useState(false);
   const [ripplePosition, setRipplePosition] = useState({ x: 0, y: 0 });
+
+  // Refs
   const cursorRef = useRef<HTMLDivElement>(null);
 
-  // Mouse position with spring physics for natural movement
+  // Motion values
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-
-  // Spring configuration for smooth, natural cursor movement
-  const springConfig = {
-    damping: 15,
-    stiffness: 150,
-    mass: 0.1,
-  };
-
-  // Heavier spring for more luxurious feel
-  const luxurySpringConfig = {
-    damping: 25,
-    stiffness: 120,
-    mass: 0.15,
-  };
-
-  // Apply spring physics to cursor movement
-  const cursorX = useSpring(mouseX, springConfig);
-  const cursorY = useSpring(mouseY, springConfig);
-
-  // For magnetic effect on magnetic elements
   const magneticX = useMotionValue(0);
   const magneticY = useMotionValue(0);
-  const magneticSpringConfig = {
-    damping: 12,
-    stiffness: 180,
-    mass: 0.2,
-  };
+  const cursorSize = useMotionValue(40);
+  const dotSize = useMotionValue(5);
+  const cursorOpacity = useMotionValue(0);
+  const ringRotation = useMotionValue(0);
+  const borderThickness = useMotionValue(1);
+
+  // Spring physics configurations
+  const springConfig = { damping: 15, stiffness: 150, mass: 0.1 };
+  const magneticSpringConfig = { damping: 12, stiffness: 180, mass: 0.2 };
+
+  // Spring animations
+  const cursorX = useSpring(mouseX, springConfig);
+  const cursorY = useSpring(mouseY, springConfig);
   const magneticCursorX = useSpring(magneticX, magneticSpringConfig);
   const magneticCursorY = useSpring(magneticY, magneticSpringConfig);
-
-  // Ring size animation based on cursor type
-  const cursorSize = useMotionValue(40);
-  const cursorScale = useSpring(cursorSize, luxurySpringConfig);
-  const cursorOpacity = useMotionValue(0);
+  const cursorScale = useSpring(cursorSize, { damping: 20, stiffness: 300 });
   const cursorAlpha = useSpring(cursorOpacity, { damping: 20, stiffness: 300 });
-
-  // Dot size animation
-  const dotSize = useMotionValue(5);
   const dotScale = useSpring(dotSize, { damping: 20, stiffness: 300 });
-
-  // Combined transforms for complex effects
-  const dotOpacity = useTransform(dotScale, [5, 0], [1, 0]);
-
-  // Rotation for dynamic cursor orientation
-  const ringRotation = useMotionValue(0);
   const ringRotate = useSpring(ringRotation, {
     damping: 50,
     stiffness: 100,
     mass: 0.5,
   });
-
-  // Cursor border thickness - changes on different states
-  const borderThickness = useMotionValue(1);
   const borderWidth = useSpring(borderThickness, {
     damping: 20,
     stiffness: 200,
   });
 
-  useEffect(() => {
-    // Advanced mouse tracking
-    const handleMouseMove = (e: MouseEvent) => {
+  // Derived values
+  const dotOpacity = useTransform(dotScale, [5, 0], [1, 0]);
+
+  // Mouse movement handler
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
-
-      // Check for magnetic elements
-      const magneticElements = document.querySelectorAll(
-        '[data-magnetic="true"]'
-      );
-
-      // Check for rotate-text (but not magnetic) elements
-      const rotateElements = document.querySelectorAll(
-        '[data-cursor-rotate="true"]:not([data-magnetic="true"])'
-      );
-
-      // Check for glow elements
-      const glowElements = document.querySelectorAll(
-        '[data-cursor-glow="true"]'
-      );
 
       // Reset magnetic effect
       magneticX.set(0);
       magneticY.set(0);
 
-      // Apply magnetic effect if hovering over magnetic element
+      // Check for magnetic elements
+      const magneticElements = document.querySelectorAll(
+        '[data-magnetic="true"]'
+      );
+      const rotateElements = document.querySelectorAll(
+        '[data-cursor-rotate="true"]:not([data-magnetic="true"])'
+      );
+
+      // Handle magnetic elements
       magneticElements.forEach((element) => {
         const rect = element.getBoundingClientRect();
-        const distX = e.clientX - (rect.left + rect.width / 2);
-        const distY = e.clientY - (rect.top + rect.height / 2);
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const distX = e.clientX - centerX;
+        const distY = e.clientY - centerY;
         const distance = Math.sqrt(distX * distX + distY * distY);
-
-        // Magnetic effect radius - increased for better detection
         const radius = Math.max(rect.width, rect.height) * 1.5;
 
         if (distance < radius) {
-          // Add rotation effect - ensure proper angle calculation
+          // Add rotation effect
           const angle = Math.atan2(distY, distX) * (180 / Math.PI);
           ringRotation.set(angle);
 
-          // Apply magnetic pull (stronger when closer)
+          // Apply magnetic pull
           const pull = 1 - distance / radius;
-
-          // Apply consistent magnetic effect
           magneticX.set(distX * pull * -0.5);
           magneticY.set(distY * pull * -0.5);
 
-          // Move the actual element if it's magnetic
-          if (
-            element.hasAttribute("data-magnetic") &&
-            element.getAttribute("data-magnetic") === "true"
-          ) {
-            // Apply transform directly to the element
+          // If element itself is magnetic, apply transform to it
+          if (element.getAttribute("data-magnetic") === "true") {
             (element as HTMLElement).style.transform = `translate(${
               distX * pull * -0.2
             }px, ${distY * pull * -0.2}px)`;
@@ -141,54 +105,36 @@ const Cursor = () => {
         }
       });
 
-      // Apply rotation effect to elements with data-cursor-rotate
+      // Handle rotation-only elements
       rotateElements.forEach((element) => {
         const rect = element.getBoundingClientRect();
-        const distX = e.clientX - (rect.left + rect.width / 2);
-        const distY = e.clientY - (rect.top + rect.height / 2);
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const distX = e.clientX - centerX;
+        const distY = e.clientY - centerY;
         const distance = Math.sqrt(distX * distX + distY * distY);
-
-        // Rotation effect radius
         const radius = Math.max(rect.width, rect.height) * 1.5;
 
         if (distance < radius) {
-          // Calculate angle for text rotation
           const angle = Math.atan2(distY, distX) * (180 / Math.PI);
           ringRotation.set(angle);
         }
       });
+    },
+    [mouseX, mouseY, magneticX, magneticY, ringRotation]
+  );
 
-      // Apply glow effect to elements with data-cursor-glow
-      glowElements.forEach((element) => {
-        const rect = element.getBoundingClientRect();
-        const isInside =
-          e.clientX >= rect.left &&
-          e.clientX <= rect.right &&
-          e.clientY >= rect.top &&
-          e.clientY <= rect.bottom;
+  // Element mouseover handler
+  const handleMouseOver = useCallback(
+    (e: Event) => {
+      const target = e.target as Element;
 
-        if (isInside) {
-          // Add a subtle glow to the element
-          (element as HTMLElement).style.boxShadow =
-            "0 0 20px rgba(255, 255, 255, 0.15)";
-        } else {
-          (element as HTMLElement).style.boxShadow = "";
-        }
-      });
-    };
-
-    // Handle cursor type and text
-    const handleMouseOver = (e: Event) => {
-      // Initially set to default
+      // Determine cursor type and text based on element attributes
       let type = "default";
       let text = "";
-      let shouldRotate = false;
+      let rotation = false;
 
-      const target = e.target as Element;
-      const linkParent = target.closest("a");
-      const buttonParent = target.closest("button");
-
-      // Check for custom attributes
+      // Check for data attributes on target
       if (target.getAttribute("data-cursor")) {
         type = target.getAttribute("data-cursor") || "default";
       }
@@ -197,26 +143,30 @@ const Cursor = () => {
         text = target.getAttribute("data-cursor-text") || "";
       }
 
-      // Check for a new attribute: data-cursor-rotate
-      if (
-        target.getAttribute("data-cursor-rotate") === "true" ||
-        (linkParent &&
-          linkParent.getAttribute("data-cursor-rotate") === "true") ||
-        (buttonParent &&
-          buttonParent.getAttribute("data-cursor-rotate") === "true")
-      ) {
-        shouldRotate = true;
+      if (target.getAttribute("data-cursor-rotate") === "true") {
+        rotation = true;
       }
 
       // Check parent elements if needed
+      const linkParent = target.closest("a");
+      const buttonParent = target.closest("button");
+
       if (type === "default" && linkParent) {
         type = linkParent.getAttribute("data-cursor") || "link";
         text = linkParent.getAttribute("data-cursor-text") || "";
+
+        if (linkParent.getAttribute("data-cursor-rotate") === "true") {
+          rotation = true;
+        }
       }
 
       if (type === "default" && buttonParent) {
         type = buttonParent.getAttribute("data-cursor") || "link";
         text = buttonParent.getAttribute("data-cursor-text") || "";
+
+        if (buttonParent.getAttribute("data-cursor-rotate") === "true") {
+          rotation = true;
+        }
       }
 
       // Final fallback for links and buttons
@@ -230,7 +180,7 @@ const Cursor = () => {
         type = "link";
       }
 
-      // Check for images or media
+      // Check for media elements
       if (
         type === "default" &&
         (target.tagName === "IMG" ||
@@ -243,105 +193,115 @@ const Cursor = () => {
         type = "view";
       }
 
-      // Apply the cursor type and text
+      // Update state
       setCursorType(type);
       setCursorText(text);
-      setShouldRotate(shouldRotate);
+      setShouldRotate(rotation);
 
-      // Adjust size and border based on type
-      if (type === "link" || type === "view") {
-        cursorSize.set(80);
-        dotSize.set(0);
-        borderThickness.set(1.5);
-      } else if (type === "text") {
-        cursorSize.set(100);
-        dotSize.set(0);
-        borderThickness.set(1);
-      } else {
-        cursorSize.set(40);
-        dotSize.set(5);
-        borderThickness.set(1);
+      // Adjust cursor size based on type
+      switch (type) {
+        case "link":
+        case "view":
+          cursorSize.set(80);
+          dotSize.set(0);
+          borderThickness.set(1.5);
+          break;
+        case "text":
+          cursorSize.set(100);
+          dotSize.set(0);
+          borderThickness.set(1);
+          break;
+        default:
+          cursorSize.set(40);
+          dotSize.set(5);
+          borderThickness.set(1);
       }
-    };
+    },
+    [cursorSize, dotSize, borderThickness]
+  );
 
-    const handleMouseOut = (e: Event) => {
+  // Reset cursor on mouseout
+  const handleMouseOut = useCallback(
+    (e: Event) => {
+      const target = e.target as Element;
       setCursorType("default");
       setCursorText("");
       cursorSize.set(40);
       dotSize.set(5);
       borderThickness.set(1);
 
-      // Reset any magnetic transforms
-      const target = e.target as Element;
-      const magneticEl = target.hasAttribute("data-magnetic")
-        ? target
-        : target.closest("[data-magnetic='true']");
-
+      // Reset transform on magnetic elements
+      const magneticEl = target.closest(
+        "[data-magnetic='true']"
+      ) as HTMLElement;
       if (magneticEl) {
-        (magneticEl as HTMLElement).style.transform = "";
+        magneticEl.style.transform = "";
       }
+    },
+    [cursorSize, dotSize, borderThickness]
+  );
 
-      // Reset any glow effects
-      const glowEl = target.hasAttribute("data-cursor-glow")
-        ? target
-        : target.closest("[data-cursor-glow='true']");
+  // Mouse leave/enter window handlers
+  const handleMouseLeave = useCallback(() => {
+    cursorOpacity.set(0);
+  }, [cursorOpacity]);
 
-      if (glowEl) {
-        (glowEl as HTMLElement).style.boxShadow = "";
-      }
-    };
+  const handleMouseEnter = useCallback(() => {
+    cursorOpacity.set(1);
+  }, [cursorOpacity]);
 
-    // Hide cursor when leaving window
-    const handleMouseLeave = () => {
-      cursorOpacity.set(0);
-    };
-
-    // Show cursor when entering window
-    const handleMouseEnter = () => {
-      cursorOpacity.set(1);
-    };
-
-    // Click and drag effects with ripple
-    const handleMouseDown = (e: MouseEvent) => {
+  // Mouse down/up handlers
+  const handleMouseDown = useCallback(
+    (e: MouseEvent) => {
       cursorSize.set(cursorSize.get() * 0.8);
       dotSize.set(3);
       borderThickness.set(2);
 
-      // Create a ripple effect
+      // Create ripple effect
       setRipplePosition({ x: e.clientX, y: e.clientY });
       setShowRipple(true);
       setTimeout(() => setShowRipple(false), 600);
+    },
+    [cursorSize, dotSize, borderThickness]
+  );
+
+  const handleMouseUp = useCallback(() => {
+    // Reset based on current cursor type
+    const target = document.elementFromPoint(mouseX.get(), mouseY.get());
+    if (target) {
+      handleMouseOver({ target } as unknown as Event);
+    }
+  }, [handleMouseOver, mouseX, mouseY]);
+
+  // Setup and cleanup effect
+  useEffect(() => {
+    // Add event listeners
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousedown", handleMouseDown);
+    window.addEventListener("mouseup", handleMouseUp);
+    window.addEventListener("mouseleave", handleMouseLeave);
+    window.addEventListener("mouseenter", handleMouseEnter);
+
+    // Element-specific event listeners
+    const addListeners = (elements: NodeListOf<Element>) => {
+      elements.forEach((el) => {
+        el.addEventListener("mouseover", handleMouseOver);
+        el.addEventListener("mouseout", handleMouseOut);
+      });
     };
 
-    const handleMouseUp = () => {
-      // Reset to the appropriate size based on current type
-      const target = document.elementFromPoint(mouseX.get(), mouseY.get());
-      if (target) {
-        handleMouseOver({ target } as unknown as MouseEvent);
-      }
-    };
+    const elements = document.querySelectorAll(
+      "a, button, [data-cursor], img, video, canvas, [data-magnetic], [data-cursor-rotate]"
+    );
+    addListeners(elements);
 
-    // Make cursor visible after a small delay
+    // Make cursor visible
     const timer = setTimeout(() => {
       setIsVisible(true);
       cursorOpacity.set(1);
     }, 300);
 
-    // Function to add event listeners to elements
-    const addEventListeners = (elements: NodeListOf<Element>) => {
-      elements.forEach((el) => {
-        el.addEventListener("mouseover", handleMouseOver as EventListener);
-        el.addEventListener("mouseout", handleMouseOut as EventListener);
-      });
-    };
-
-    // Add event listeners to all relevant elements
-    const elements = document.querySelectorAll(
-      "a, button, [data-cursor], img, video, canvas, [data-magnetic], [data-cursor-rotate], [data-cursor-glow]"
-    );
-    addEventListeners(elements);
-
-    // Create a MutationObserver to handle dynamically added elements
+    // Create MutationObserver for dynamically added elements
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.addedNodes.length) {
@@ -349,36 +309,17 @@ const Cursor = () => {
             if (node.nodeType === 1) {
               // Element node
               const newElement = node as Element;
-              if (
-                newElement.matches &&
-                (newElement.matches(
-                  "a, button, [data-cursor], img, video, canvas, [data-magnetic], [data-cursor-rotate], [data-cursor-glow]"
-                ) ||
-                  newElement.querySelectorAll(
-                    "a, button, [data-cursor], img, video, canvas, [data-magnetic], [data-cursor-rotate], [data-cursor-glow]"
-                  ).length > 0)
-              ) {
-                // Add listeners to the new element
-                if (
-                  newElement.matches(
-                    "a, button, [data-cursor], img, video, canvas, [data-magnetic], [data-cursor-rotate], [data-cursor-glow]"
-                  )
-                ) {
-                  newElement.addEventListener(
-                    "mouseover",
-                    handleMouseOver as EventListener
-                  );
-                  newElement.addEventListener(
-                    "mouseout",
-                    handleMouseOut as EventListener
-                  );
-                }
+              const selector =
+                "a, button, [data-cursor], img, video, canvas, [data-magnetic], [data-cursor-rotate]";
 
-                // Add listeners to any matching children
-                const childElements = newElement.querySelectorAll(
-                  "a, button, [data-cursor], img, video, canvas, [data-magnetic], [data-cursor-rotate], [data-cursor-glow]"
-                );
-                addEventListeners(childElements);
+              if (newElement.matches && newElement.matches(selector)) {
+                newElement.addEventListener("mouseover", handleMouseOver);
+                newElement.addEventListener("mouseout", handleMouseOut);
+              }
+
+              const childElements = newElement.querySelectorAll(selector);
+              if (childElements.length) {
+                addListeners(childElements);
               }
             }
           });
@@ -392,17 +333,11 @@ const Cursor = () => {
       subtree: true,
     });
 
-    // Add event listeners
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mousedown", handleMouseDown);
-    window.addEventListener("mouseup", handleMouseUp);
-    window.addEventListener("mouseleave", handleMouseLeave);
-    window.addEventListener("mouseenter", handleMouseEnter);
-
-    // Clean up event listeners
+    // Cleanup
     return () => {
       clearTimeout(timer);
       observer.disconnect();
+
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mousedown", handleMouseDown);
       window.removeEventListener("mouseup", handleMouseUp);
@@ -411,24 +346,26 @@ const Cursor = () => {
 
       document
         .querySelectorAll(
-          "a, button, [data-cursor], img, video, canvas, [data-magnetic], [data-cursor-rotate], [data-cursor-glow]"
+          "a, button, [data-cursor], img, video, canvas, [data-magnetic], [data-cursor-rotate]"
         )
         .forEach((el) => {
-          el.removeEventListener("mouseover", handleMouseOver as EventListener);
-          el.removeEventListener("mouseout", handleMouseOut as EventListener);
+          el.removeEventListener("mouseover", handleMouseOver);
+          el.removeEventListener("mouseout", handleMouseOut);
         });
     };
   }, [
+    handleMouseMove,
+    handleMouseOver,
+    handleMouseOut,
+    handleMouseDown,
+    handleMouseUp,
+    handleMouseLeave,
+    handleMouseEnter,
     cursorOpacity,
-    cursorSize,
-    dotSize,
-    borderThickness,
-    magneticX,
-    magneticY,
-    mouseX,
-    mouseY,
-    ringRotation,
   ]);
+
+  // Only render cursor on client
+  if (typeof window === "undefined") return null;
 
   return (
     <>
@@ -472,7 +409,7 @@ const Cursor = () => {
           backdropFilter: "blur(4px)",
         }}
       >
-        {/* Specialized content based on cursor type */}
+        {/* Content based on cursor type */}
         {cursorType === "link" && (
           <motion.span
             className="text-xs text-white uppercase tracking-wider opacity-80 pointer-events-none"
@@ -487,7 +424,7 @@ const Cursor = () => {
               fontWeight: 500,
             }}
           >
-            {cursorText || (cursorType === "link" ? "View" : "View")}
+            {cursorText || "View"}
           </motion.span>
         )}
 
@@ -590,7 +527,7 @@ const Cursor = () => {
         )}
       </AnimatePresence>
 
-      {/* Magnetic effect layer - adds the offset to magnetic elements */}
+      {/* Magnetic effect layer */}
       <motion.div
         className="fixed top-0 left-0 pointer-events-none z-[9997] w-full h-full"
         style={{

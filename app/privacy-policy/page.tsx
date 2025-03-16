@@ -1,6 +1,6 @@
 "use client";
 
-import PrivacyPolicy from "@/components/PrivacyPolicy";
+import PrivacyPolicy from "@/components/pages/PrivacyPolicy";
 
 export default function PrivacyPolicyRoute() {
   return (

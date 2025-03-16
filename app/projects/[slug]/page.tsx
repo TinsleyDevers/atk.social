@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation"; // Use this instead of direct params
-import HotOnesProjectView from "@/components/AtkSocialProjects/HotOnesProjectView";
+import HotOnesProjectView from "@/components/pages/AtkSocialProjects/HotOnesProjectView";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Cursor from "@/components/Cursor";

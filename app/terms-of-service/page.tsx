@@ -1,6 +1,6 @@
 "use client";
 
-import TermsOfService from "@/components/TermsOfService";
+import TermsOfService from "@/components/pages/TermsOfService";
 
 export default function TermsOfServiceRoute() {
   return (

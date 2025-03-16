@@ -267,9 +267,10 @@ const Contact = () => {
       className="min-h-screen py-24 relative overflow-hidden bg-black"
     >
       {/* Background elements */}
+      {/* Background elements */}
       <div className="absolute inset-0 noise-texture opacity-30 z-10"></div>
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 z-20"></div>
-      <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 z-20"></div>
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-white/20 via-white/30 to-white/20 z-20"></div>
+      <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-white/20 via-white/30 to-white/20 z-20"></div>
 
       {/* Grid patterns for visual texture */}
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZGVmcz4KPHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxwYXRoIGQ9Ik0gNTAgMCBMIDAgMCAwIDUwIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4wMikiIHN0cm9rZS13aWR0aD0iMSIvPgo8L3BhdHRlcm4+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIgLz4KPC9zdmc+')] opacity-20 z-10"></div>
@@ -291,7 +292,7 @@ const Contact = () => {
             <span className="relative inline-block">
               <span className="relative z-10">Connect</span>
               <motion.span
-                className="absolute -bottom-3 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500"
+                className={`absolute -bottom-3 left-0 w-full h-1 bg-gradient-to-r ${colors.primary}`}
                 initial={{ scaleX: 0 }}
                 whileInView={{ scaleX: 1 }}
                 viewport={{ once: true }}
@@ -351,7 +352,6 @@ const Contact = () => {
               ))}
             </div>
           </motion.div>
-
           {/* Contact showcase */}
           <motion.div
             className="mb-24"
@@ -671,7 +671,6 @@ const Contact = () => {
               </motion.div>
             </AnimatePresence>
           </motion.div>
-
           {/* Social links with hover effects */}
           <motion.div
             className="mb-20 text-center"
@@ -734,8 +733,7 @@ const Contact = () => {
               ))}
             </div>
           </motion.div>
-
-          {/* Location section */}
+          Location section
           <motion.div
             className="text-center mb-32"
             initial={{ opacity: 0, y: 20 }}
@@ -830,7 +828,6 @@ const Contact = () => {
               ))}
             </div>
           </motion.div>
-
           {/* Final CTA */}
           <motion.div
             className="text-center max-w-3xl mx-auto"
@@ -848,24 +845,21 @@ const Contact = () => {
               </span>
             </h3>
 
-            <MagneticButton className="inline-block">
+            <MagneticButton>
               <a
-                href={`mailto:${
-                  emailOptions.find((option) => option.id === activeTab)
-                    ?.email || "hello@atkgroup.com"
-                }`}
-                className="group px-10 py-4 mt-4 bg-gradient-to-r from-blue-900/20 via-purple-900/20 to-blue-900/20 text-white font-medium tracking-wider text-sm relative overflow-hidden border border-white/10 inline-block"
+                href="#contact"
+                className="group px-10 py-4 bg-transparent border border-white text-white font-medium relative overflow-hidden inline-block uppercase tracking-wider text-sm"
                 data-cursor="text"
-                data-cursor-text="Email Us"
+                data-cursor-text="Connect"
                 data-cursor-rotate="true"
               >
-                <span className="relative z-10 transition-transform duration-500 group-hover:translate-y-[-120%] inline-block">
-                  Get in Touch
-                </span>
-                <span className="absolute inset-0 flex items-center justify-center text-white transition-transform duration-500 translate-y-[120%] group-hover:translate-y-0">
+                <span className="relative z-10 transition-transform duration-500 group-hover:translate-y-[-150%] inline-block">
                   Reach Out to Us
                 </span>
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 group-hover:w-full transition-all duration-300 ease-in-out"></span>
+                <span className="absolute inset-0 flex items-center justify-center text-white transition-transform duration-500 translate-y-[150%] group-hover:translate-y-0">
+                  Get in touch
+                </span>
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300 ease-in-out"></span>
               </a>
             </MagneticButton>
           </motion.div>
@@ -874,7 +868,7 @@ const Contact = () => {
 
       {/* Marquee banner */}
       <div className="absolute bottom-0 left-0 w-full overflow-hidden">
-        <div className="py-4 bg-gradient-to-r from-blue-900/5 via-purple-900/5 to-blue-900/5 border-t border-b border-white/5 overflow-hidden">
+        <div className="py-4 bg-gradient-to-r from-white/5 via-white/10 to-white/5 border-t border-b border-white/5 overflow-hidden">
           <div className="whitespace-nowrap inline-flex animate-marquee">
             {Array(2)
               .fill(0)

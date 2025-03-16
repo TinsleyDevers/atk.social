@@ -208,7 +208,7 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-6 flex justify-between items-center">
         {/* Logo */}
-        <Link href="#home">
+        <Link href="">
           <motion.div
             className="text-2xl font-bold tracking-tighter relative flex items-center"
             initial={{ opacity: 0 }}
@@ -499,7 +499,7 @@ const Navbar = () => {
                           ))}
                           <div className="mt-3 pt-3 border-t border-white/10">
                             <Link
-                              href="#social"
+                              href="/social"
                               className="text-xs text-purple-400 hover:text-purple-300 flex items-center"
                             >
                               Explore ATK Social
@@ -575,7 +575,7 @@ const Navbar = () => {
                           ))}
                           <div className="mt-3 pt-3 border-t border-white/10">
                             <Link
-                              href="#studios"
+                              href="/studio"
                               className="text-xs text-blue-400 hover:text-blue-300 flex items-center"
                             >
                               Explore ATK Studios

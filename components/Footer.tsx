@@ -1,9 +1,63 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { memo } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { motion } from "framer-motion";
 
+// Type definitions for props
+interface SocialLinkProps {
+  href: string;
+  label: string;
+  children: React.ReactNode;
+}
+
+// Memoized SocialLink component to prevent unnecessary re-renders
+const SocialLink = memo(({ href, label, children }: SocialLinkProps) => (
+  <a
+    href={href}
+    aria-label={label}
+    className="w-10 h-10 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:border-white/30 transition-all duration-300 relative overflow-hidden group"
+    data-cursor="magnetic"
+  >
+    <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-all duration-300"></div>
+    <div className="relative z-10">{children}</div>
+  </a>
+));
+
+SocialLink.displayName = "SocialLink";
+
+// Memoized FooterLink component
+const FooterLink = memo(
+  ({ href, children }: { href: string; children: React.ReactNode }) => (
+    <li>
+      <a
+        href={href}
+        className="text-gray-400 hover:text-white transition-colors relative group flex items-center"
+        data-cursor="magnetic"
+      >
+        <span className="absolute w-0 h-px bg-white bottom-0 left-0 transition-all duration-300 group-hover:w-full"></span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-3 w-3 mr-2 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M12.293 5.293a1 1 0 0 1 1.414 0l4 4a1 1 0 0 1 0 1.414l-4 4a1 1 0 0 1-1.414-1.414L14.586 11H3a1 1 0 1 1 0-2h11.586l-2.293-2.293a1 1 0 0 1 0-1.414z"
+            clipRule="evenodd"
+          />
+        </svg>
+        {children}
+      </a>
+    </li>
+  )
+);
+
+FooterLink.displayName = "FooterLink";
+
+// Main Footer component
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
@@ -12,36 +66,27 @@ const Footer = () => {
       {/* Background elements */}
       <div className="absolute inset-0 noise-texture opacity-30"></div>
       <div className="absolute top-0 left-0 w-full h-px bg-white/10"></div>
-
-      {/* Vertical design element */}
       <div className="absolute top-0 left-1/4 w-px h-full bg-white/5"></div>
       <div className="absolute top-0 right-1/4 w-px h-full bg-white/5"></div>
-
-      {/* Ambient light effect */}
-      <div className="absolute -top-48 -left-48 w-96 h-96 bg-white/5 rounded-full filter blur-3xl opacity-20"></div>
-      <div className="absolute -bottom-48 -right-48 w-96 h-96 bg-white/5 rounded-full filter blur-3xl opacity-20"></div>
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Logo and tagline */}
           <div>
-            <Link href="#home">
+            <Link href="#home" className="inline-block" data-cursor="magnetic">
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
-                className="inline-block"
-                data-cursor="magnetic"
+                className="flex items-center"
               >
-                <div className="flex items-center">
-                  <div className="w-10 h-10 relative mr-3">
-                    <Image
-                      src="/images/ATKLogoTransparent.png"
-                      alt="ATK"
-                      width={40}
-                      height={40}
-                      className="object-contain"
-                    />
-                  </div>
+                <div className="w-10 h-10 relative mr-3">
+                  <Image
+                    src="/images/ATKLogoTransparent.png"
+                    alt="ATK Logo"
+                    width={40}
+                    height={40}
+                    className="object-contain"
+                  />
                 </div>
               </motion.div>
             </Link>
@@ -50,13 +95,7 @@ const Footer = () => {
               extraordinary experiences.
             </p>
             <div className="flex space-x-4">
-              {/* Social icons with correct SVGs */}
-              <a
-                href="#"
-                className="w-10 h-10 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:border-white/30 transition-all duration-300 relative overflow-hidden group"
-                data-cursor="magnetic"
-              >
-                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-all duration-300"></div>
+              <SocialLink href="https://twitter.com/atkgroup" label="Twitter">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="18"
@@ -67,18 +106,15 @@ const Footer = () => {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="relative z-10"
                 >
                   <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
                 </svg>
-              </a>
+              </SocialLink>
 
-              <a
-                href="#"
-                className="w-10 h-10 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:border-white/30 transition-all duration-300 relative overflow-hidden group"
-                data-cursor="magnetic"
+              <SocialLink
+                href="https://instagram.com/atkgroup"
+                label="Instagram"
               >
-                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-all duration-300"></div>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="18"
@@ -89,20 +125,17 @@ const Footer = () => {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="relative z-10"
                 >
                   <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                   <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                   <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                 </svg>
-              </a>
+              </SocialLink>
 
-              <a
-                href="#"
-                className="w-10 h-10 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:border-white/30 transition-all duration-300 relative overflow-hidden group"
-                data-cursor="magnetic"
+              <SocialLink
+                href="https://linkedin.com/company/atkgroup"
+                label="LinkedIn"
               >
-                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-all duration-300"></div>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="18"
@@ -113,20 +146,14 @@ const Footer = () => {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="relative z-10"
                 >
                   <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
                   <rect x="2" y="9" width="4" height="12"></rect>
                   <circle cx="4" cy="4" r="2"></circle>
                 </svg>
-              </a>
+              </SocialLink>
 
-              <a
-                href="#"
-                className="w-10 h-10 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:border-white/30 transition-all duration-300 relative overflow-hidden group"
-                data-cursor="magnetic"
-              >
-                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-all duration-300"></div>
+              <SocialLink href="https://github.com/atkgroup" label="GitHub">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="18"
@@ -137,11 +164,10 @@ const Footer = () => {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="relative z-10"
                 >
                   <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
                 </svg>
-              </a>
+              </SocialLink>
             </div>
           </div>
 
@@ -151,116 +177,11 @@ const Footer = () => {
               Services
             </h3>
             <ul className="space-y-3">
-              <li>
-                <a
-                  href="#social"
-                  className="text-gray-400 hover:text-white transition-colors relative group flex items-center"
-                  data-cursor="magnetic"
-                >
-                  <span className="absolute w-0 h-px bg-white bottom-0 left-0 transition-all duration-300 group-hover:w-full"></span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-3 w-3 mr-2 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Content Creation
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#social"
-                  className="text-gray-400 hover:text-white transition-colors relative group flex items-center"
-                  data-cursor="magnetic"
-                >
-                  <span className="absolute w-0 h-px bg-white bottom-0 left-0 transition-all duration-300 group-hover:w-full"></span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-3 w-3 mr-2 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Social Media Strategy
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#social"
-                  className="text-gray-400 hover:text-white transition-colors relative group flex items-center"
-                  data-cursor="magnetic"
-                >
-                  <span className="absolute w-0 h-px bg-white bottom-0 left-0 transition-all duration-300 group-hover:w-full"></span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-3 w-3 mr-2 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Influencer Marketing
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#studios"
-                  className="text-gray-400 hover:text-white transition-colors relative group flex items-center"
-                  data-cursor="magnetic"
-                >
-                  <span className="absolute w-0 h-px bg-white bottom-0 left-0 transition-all duration-300 group-hover:w-full"></span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-3 w-3 mr-2 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Game Development
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#studios"
-                  className="text-gray-400 hover:text-white transition-colors relative group flex items-center"
-                  data-cursor="magnetic"
-                >
-                  <span className="absolute w-0 h-px bg-white bottom-0 left-0 transition-all duration-300 group-hover:w-full"></span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-3 w-3 mr-2 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Interactive Experiences
-                </a>
-              </li>
+              <FooterLink href="#social">Content Creation</FooterLink>
+              <FooterLink href="#social">Social Media Strategy</FooterLink>
+              <FooterLink href="#social">Influencer Marketing</FooterLink>
+              <FooterLink href="#studios">Game Development</FooterLink>
+              <FooterLink href="#studios">Interactive Experiences</FooterLink>
             </ul>
           </div>
 
@@ -270,116 +191,11 @@ const Footer = () => {
               Company
             </h3>
             <ul className="space-y-3">
-              <li>
-                <a
-                  href="#about"
-                  className="text-gray-400 hover:text-white transition-colors relative group flex items-center"
-                  data-cursor="magnetic"
-                >
-                  <span className="absolute w-0 h-px bg-white bottom-0 left-0 transition-all duration-300 group-hover:w-full"></span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-3 w-3 mr-2 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  About Us
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#team"
-                  className="text-gray-400 hover:text-white transition-colors relative group flex items-center"
-                  data-cursor="magnetic"
-                >
-                  <span className="absolute w-0 h-px bg-white bottom-0 left-0 transition-all duration-300 group-hover:w-full"></span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-3 w-3 mr-2 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Team
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-gray-400 hover:text-white transition-colors relative group flex items-center"
-                  data-cursor="magnetic"
-                >
-                  <span className="absolute w-0 h-px bg-white bottom-0 left-0 transition-all duration-300 group-hover:w-full"></span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-3 w-3 mr-2 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Careers
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/privacy-policy"
-                  className="text-gray-400 hover:text-white transition-colors relative group flex items-center"
-                  data-cursor="magnetic"
-                >
-                  <span className="absolute w-0 h-px bg-white bottom-0 left-0 transition-all duration-300 group-hover:w-full"></span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-3 w-3 mr-2 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Privacy Policy
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-gray-400 hover:text-white transition-colors relative group flex items-center"
-                  data-cursor="magnetic"
-                >
-                  <span className="absolute w-0 h-px bg-white bottom-0 left-0 transition-all duration-300 group-hover:w-full"></span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-3 w-3 mr-2 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Terms of Service
-                </a>
-              </li>
+              <FooterLink href="#about">About Us</FooterLink>
+              <FooterLink href="#team">Team</FooterLink>
+              <FooterLink href="#contact">Careers</FooterLink>
+              <FooterLink href="/privacy-policy">Privacy Policy</FooterLink>
+              <FooterLink href="/terms-of-service">Terms of Service</FooterLink>
             </ul>
           </div>
 
@@ -392,11 +208,15 @@ const Footer = () => {
               Subscribe to our newsletter to receive updates and creative
               insights.
             </p>
-            <form className="flex flex-col sm:flex-row gap-2">
+            <form
+              className="flex flex-col sm:flex-row gap-2"
+              onSubmit={(e) => e.preventDefault()}
+            >
               <div className="relative flex-1">
                 <input
                   type="email"
                   placeholder="Your email"
+                  aria-label="Email address for newsletter"
                   className="bg-black/30 w-full px-4 py-3 border border-white/10 text-white focus:outline-none focus:ring-1 focus:ring-white/20 transition-all duration-300"
                 />
               </div>
@@ -441,30 +261,21 @@ const Footer = () => {
             &copy; {currentYear} ATK. All rights reserved.
           </p>
           <div className="flex flex-wrap gap-6">
-            <a
-              href="/privacy-policy"
-              className="text-gray-400 hover:text-white transition-colors text-sm relative group"
-              data-cursor="magnetic"
-            >
-              <span className="absolute w-0 h-px bg-white bottom-0 left-0 transition-all duration-300 group-hover:w-full"></span>
-              Privacy Policy
-            </a>
-            <a
-              href="/terms-of-service"
-              className="text-gray-400 hover:text-white transition-colors text-sm relative group"
-              data-cursor="magnetic"
-            >
-              <span className="absolute w-0 h-px bg-white bottom-0 left-0 transition-all duration-300 group-hover:w-full"></span>
-              Terms of Service
-            </a>
-            <a
-              href="cookies"
-              className="text-gray-400 hover:text-white transition-colors text-sm relative group"
-              data-cursor="magnetic"
-            >
-              <span className="absolute w-0 h-px bg-white bottom-0 left-0 transition-all duration-300 group-hover:w-full"></span>
-              Cookies
-            </a>
+            {[
+              { href: "/privacy-policy", label: "Privacy Policy" },
+              { href: "/terms-of-service", label: "Terms of Service" },
+              { href: "/cookies", label: "Cookies" },
+            ].map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-gray-400 hover:text-white transition-colors text-sm relative group"
+                data-cursor="magnetic"
+              >
+                <span className="absolute w-0 h-px bg-white bottom-0 left-0 transition-all duration-300 group-hover:w-full"></span>
+                {link.label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>
@@ -472,4 +283,4 @@ const Footer = () => {
   );
 };
 
-export default Footer;
+export default memo(Footer);

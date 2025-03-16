@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   motion,
   AnimatePresence,
@@ -10,26 +10,28 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 
-const Preloader = ({
-  onLoadingComplete,
-}: {
+interface PreloaderProps {
   onLoadingComplete?: () => void;
-}) => {
+}
+
+/**
+ * Animated preloader component that displays a loading screen while the app initializes
+ */
+const Preloader: React.FC<PreloaderProps> = ({ onLoadingComplete }) => {
+  // Core states
   const [progress, setProgress] = useState(0);
-  const [phase, setPhase] = useState(1);
-  const progressControls = useAnimation();
+  const [isExiting, setIsExiting] = useState(false);
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+
+  // Animation controls
   const overlayControls = useAnimation();
   const progressVal = useMotionValue(0);
   const progressOpacity = useTransform(progressVal, [0, 100], [1, 0]);
-  const logoRef = useRef<HTMLDivElement>(null);
-  const [exitAnimationComplete, setExitAnimationComplete] = useState(false);
 
-  // Setup for the dynamic text elements
-  // Use useMemo to prevent the array from being recreated on each render
-  const words = useMemo(() => ["Social", "Studios"], []);
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  // Words to display in rotation
+  const words = ["Social", "Studios"];
 
-  // Word rotation in a separate useEffect
+  // Handle the word rotation animation
   useEffect(() => {
     const wordInterval = setInterval(() => {
       setCurrentWordIndex((prev) => (prev + 1) % words.length);
@@ -38,84 +40,66 @@ const Preloader = ({
     return () => clearInterval(wordInterval);
   }, [words.length]);
 
-  // Handle the exit animation in its own useEffect
-  useEffect(() => {
-    if (phase === 2) {
-      const animateExit = async () => {
-        await overlayControls.start({
-          y: "-100%",
-          transition: { duration: 1.2, ease: [0.76, 0, 0.24, 1] },
-        });
+  // Handle the exit animation sequence
+  const handleExit = useCallback(async () => {
+    setIsExiting(true);
 
-        setExitAnimationComplete(true);
-      };
+    await overlayControls.start({
+      y: "-100%",
+      transition: { duration: 1.2, ease: [0.76, 0, 0.24, 1] },
+    });
 
-      animateExit();
-    }
-  }, [phase, overlayControls]);
-
-  // Call the onLoadingComplete callback when exit animation is done
-  useEffect(() => {
-    if (exitAnimationComplete && onLoadingComplete) {
+    if (onLoadingComplete) {
       onLoadingComplete();
     }
-  }, [exitAnimationComplete, onLoadingComplete]);
+  }, [overlayControls, onLoadingComplete]);
 
-  // Main loading progress useEffect
+  // Main loading logic
   useEffect(() => {
-    // Only run this effect once
-    if (phase !== 1) return;
+    // Skip if already exiting
+    if (isExiting) return;
 
-    // Track real page loading status
+    // Track page load status
     let pageLoaded = false;
     const markAsLoaded = () => {
       pageLoaded = true;
     };
 
-    // Listen for page load events
+    // Check if page is already loaded
     if (document.readyState === "complete") {
       markAsLoaded();
     } else {
       window.addEventListener("load", markAsLoaded);
     }
 
-    // Start the progress animation with aesthetic timing
-    let progressInterval: ReturnType<typeof setInterval>;
-
-    const startLoading = () => {
+    // Create loading animation
+    const simulateProgress = () => {
       let currentProgress = 0;
-      let loadingSpeed = 1; // Initial loading speed
+      let loadingSpeed = 1;
 
-      progressInterval = setInterval(() => {
-        // Adjust loading speed based on progress and actual page load
+      const progressInterval = setInterval(() => {
+        // Adjust speed based on actual load state
         if (pageLoaded && currentProgress < 70) {
-          // If page is actually loaded but our animation is behind, speed up a bit
           loadingSpeed = 2;
         } else if (!pageLoaded && currentProgress > 80) {
-          // If real page isn't ready but animation is getting ahead, slow down
           loadingSpeed = 0.5;
         } else if (currentProgress > 80) {
-          // Slow down as we approach completion for a nicer effect
           loadingSpeed = 0.7;
         } else if (currentProgress > 50) {
-          // Medium progress speed
           loadingSpeed = 1.2;
         }
 
-        // Calculate a smooth increment that starts faster and slows down
+        // Calculate increment with natural slowdown
         let increment;
         if (currentProgress < 30) {
-          // Faster at the beginning (creates a nice initial movement)
           increment = Math.random() * 2 + 1;
         } else if (currentProgress < 80) {
-          // Steady pace through the middle
           increment = Math.random() * 1.5 + 0.4;
         } else {
-          // Very slow at the end (builds anticipation)
           increment = Math.random() * 0.7 + 0.2;
         }
 
-        // Apply loading speed modifier
+        // Apply speed modifier
         increment *= loadingSpeed;
 
         // Update progress
@@ -123,34 +107,34 @@ const Preloader = ({
         setProgress(Math.floor(currentProgress));
         progressVal.set(Math.floor(currentProgress));
 
-        // If we reach 100%
+        // Complete at 100%
         if (currentProgress >= 100) {
           clearInterval(progressInterval);
 
-          // Ensure we display 100% for a moment before transitioning
+          // Short delay before starting exit
           setTimeout(() => {
-            // If the actual page is ready, or we've waited long enough, proceed
-            if (pageLoaded || currentProgress >= 100) {
-              setPhase(2); // Move to exit phase
-            }
-          }, 800); // Show 100% for 800ms before exit animation
+            handleExit();
+          }, 800);
         }
-      }, 50); // Update more frequently for smoother animation
+      }, 50);
+
+      return progressInterval;
     };
 
-    // Start with a brief delay to allow the entrance animation
-    const preloaderTimeout = setTimeout(() => {
-      startLoading();
+    // Slight delay before starting progress
+    const initialDelay = setTimeout(() => {
+      const progressInterval = simulateProgress();
+      return () => clearInterval(progressInterval);
     }, 800);
 
+    // Cleanup
     return () => {
-      clearTimeout(preloaderTimeout);
-      clearInterval(progressInterval);
+      clearTimeout(initialDelay);
       window.removeEventListener("load", markAsLoaded);
     };
-  }, [phase, progressVal]); // Removed dependencies that could cause re-renders
+  }, [isExiting, progressVal, handleExit]);
 
-  // Text character split animation variant
+  // Text animation variants
   const letterVariants = {
     hidden: { y: 40, opacity: 0 },
     visible: (i: number) => ({
@@ -173,27 +157,22 @@ const Preloader = ({
     }),
   };
 
-  // Split the current word into characters for animation
-  const currentWord = words[currentWordIndex];
-  const letters = currentWord.split("");
-
   return (
     <AnimatePresence>
-      {(phase === 1 || phase === 2) && (
+      {!isExiting || progress < 100 ? (
         <motion.div
           className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black overflow-hidden"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
         >
-          {/* Ambient background elements */}
+          {/* Background elements */}
           <div className="absolute inset-0 bg-[#050505] z-0">
-            {/* Vertical accent lines */}
             <div className="absolute inset-y-0 left-1/4 w-px bg-white/5"></div>
             <div className="absolute inset-y-0 right-1/4 w-px bg-white/5"></div>
           </div>
 
-          {/* Slide-away overlay for the exit animation */}
+          {/* Slide-away overlay for exit animation */}
           <motion.div
             className="absolute inset-0 bg-black z-30"
             initial={{ y: "100%" }}
@@ -204,7 +183,6 @@ const Preloader = ({
           <div className="container relative z-20 px-6 text-center max-w-xl mx-auto">
             {/* Logo mark */}
             <motion.div
-              ref={logoRef}
               className="mb-12 relative"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -217,6 +195,7 @@ const Preloader = ({
                     alt="ATK"
                     fill
                     className="object-contain"
+                    priority
                   />
                 </div>
               </div>
@@ -231,9 +210,8 @@ const Preloader = ({
                   initial="hidden"
                   animate="visible"
                   exit="exit"
-                  transition={{ staggerChildren: 0.05 }}
                 >
-                  {letters.map((letter, index) => (
+                  {words[currentWordIndex].split("").map((letter, index) => (
                     <motion.span
                       key={`${letter}-${index}`}
                       variants={letterVariants}
@@ -255,8 +233,6 @@ const Preloader = ({
               <motion.div
                 className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500"
                 style={{ width: `${progress}%` }}
-                initial={{ width: 0 }}
-                animate={progressControls}
               />
             </motion.div>
 
@@ -269,7 +245,7 @@ const Preloader = ({
             </motion.p>
           </div>
         </motion.div>
-      )}
+      ) : null}
     </AnimatePresence>
   );
 };

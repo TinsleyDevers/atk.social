@@ -9,7 +9,7 @@ import {
   Variants,
 } from "framer-motion";
 import Link from "next/link";
-import SplitText from "../utils/SplitText";
+import SplitText from "../../utils/SplitText";
 import { setCookie, getCookie, hasCookie } from "cookies-next";
 
 // Custom typing for window object to include dataLayer
