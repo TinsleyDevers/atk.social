@@ -733,7 +733,7 @@ const Contact = () => {
               ))}
             </div>
           </motion.div>
-          Location section
+          {/* Locations */}
           <motion.div
             className="text-center mb-32"
             initial={{ opacity: 0, y: 20 }}
