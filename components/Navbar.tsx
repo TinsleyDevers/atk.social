@@ -208,7 +208,7 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-6 flex justify-between items-center">
         {/* Logo */}
-        <Link href="">
+        <Link href="/">
           <motion.div
             className="text-2xl font-bold tracking-tighter relative flex items-center"
             initial={{ opacity: 0 }}
