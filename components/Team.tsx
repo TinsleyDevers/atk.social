@@ -1,14 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import {
-  motion,
-  AnimatePresence,
-  useScroll,
-  useTransform,
-  useInView,
-  Variants,
-} from "framer-motion";
+import { motion, AnimatePresence, useInView, Variants } from "framer-motion";
 import Image from "next/image";
 
 // Team member defs
@@ -205,6 +198,7 @@ const TeamMemberCard = ({
   onSelect: (member: TeamMember) => void;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
 
@@ -241,6 +235,14 @@ const TeamMemberCard = ({
       data-cursor="view"
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          onSelect(member);
+        }
+      }}
+      aria-label={`View ${member.name}'s profile`}
     >
       <div className="relative h-full w-full overflow-hidden bg-black/50">
         <div
@@ -248,14 +250,15 @@ const TeamMemberCard = ({
           className="absolute inset-0 transition-transform duration-500 ease-out"
         >
           <Image
-            src={
-              member.image.startsWith("/")
-                ? member.image
-                : "/images/placeholder.png"
-            }
-            alt={member.name}
+            src={imageError ? "/images/placeholder.png" : member.image}
+            alt={`${member.name} - ${member.role}`}
             fill
             className="object-cover transition-all duration-700 scale-110 group-hover:scale-105 opacity-90 group-hover:opacity-100"
+            sizes="(max-width: 768px) 100vw, 33vw"
+            priority
+            loading="eager"
+            quality={90}
+            onError={() => setImageError(true)}
           />
         </div>
 
@@ -302,6 +305,9 @@ const TeamMemberCard = ({
                 onClick={(e) => e.stopPropagation()}
                 data-cursor="text"
                 data-cursor-text={link.platform}
+                aria-label={`${member.name}'s ${link.platform} profile`}
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <SocialIcon platform={link.platform} />
               </a>
@@ -329,23 +335,22 @@ const TeamMemberModal = ({
   member: TeamMember | null;
   onClose: () => void;
 }) => {
-  const { scrollYProgress } = useScroll();
-  const opacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
-
   if (!member) return null;
 
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 bg-black/90 backdrop-blur-lg z-50 overflow-y-auto flex items-center justify-center"
+        className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        style={{ opacity }}
         onClick={onClose}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={`modal-title-${member.id}`}
       >
         <motion.div
-          className="m-4 max-w-5xl w-full flex flex-col overflow-hidden"
+          className="relative bg-black/90 border border-white/10 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
@@ -354,14 +359,16 @@ const TeamMemberModal = ({
         >
           {/* Close button */}
           <button
-            className="absolute top-8 right-8 w-10 h-10 flex items-center justify-center border border-white/20 bg-black/50 z-10 hover:border-white/40 transition-colors"
+            className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center border border-white/20 bg-black/50 z-10 hover:border-white/40 transition-colors"
             onClick={onClose}
+            aria-label="Close modal"
           >
             <svg
               className="w-5 h-5 text-white"
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
             >
               <path
                 d="M18 6L6 18M6 6L18 18"
@@ -382,9 +389,17 @@ const TeamMemberModal = ({
                     ? member.image
                     : "/images/placeholder.png"
                 }
-                alt={member.name}
+                alt={`${member.name} - ${member.role}`}
                 fill
                 className="object-cover"
+                sizes="(max-width: 768px) 100vw, 33vw"
+                priority
+                loading="eager"
+                quality={90}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "/images/placeholder.png";
+                }}
               />
 
               {/* Gradient overlay */}
@@ -392,7 +407,10 @@ const TeamMemberModal = ({
 
               {/* Info overlay for mobile */}
               <div className="absolute bottom-0 left-0 w-full p-8 md:hidden">
-                <h2 className="text-3xl font-bold mb-2 playfair">
+                <h2
+                  id={`modal-title-${member.id}`}
+                  className="text-3xl font-bold mb-2 playfair"
+                >
                   {member.name}
                 </h2>
                 <p className="text-sm uppercase tracking-wider text-white/70 mb-6">
@@ -406,6 +424,9 @@ const TeamMemberModal = ({
                       href={link.url}
                       className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
                       data-cursor="magnetic"
+                      aria-label={`${member.name}'s ${link.platform} profile`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       <SocialIcon platform={link.platform} />
                     </a>
@@ -418,7 +439,10 @@ const TeamMemberModal = ({
             <div className="md:col-span-4 p-8 md:p-12 flex flex-col">
               {/* Info for desktop */}
               <div className="hidden md:block mb-8">
-                <h2 className="text-4xl font-bold mb-2 playfair">
+                <h2
+                  id={`modal-title-desktop-${member.id}`}
+                  className="text-4xl font-bold mb-2 playfair"
+                >
                   {member.name}
                 </h2>
                 <p className="text-sm uppercase tracking-wider text-white/70 mb-6">
@@ -432,6 +456,9 @@ const TeamMemberModal = ({
                       href={link.url}
                       className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
                       data-cursor="magnetic"
+                      aria-label={`${member.name}'s ${link.platform} profile`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       <SocialIcon platform={link.platform} />
                     </a>
@@ -465,6 +492,36 @@ const TeamMemberModal = ({
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Footer */}
+          <div className="border-t border-white/10 p-6 flex justify-between items-center">
+            <p className="text-sm text-gray-400">View our team</p>
+
+            <MagneticElement>
+              <button
+                className="px-4 py-2 border border-white/20 hover:border-white/40 text-sm text-white transition-colors flex items-center space-x-2"
+                onClick={onClose}
+                aria-label="Back to team"
+              >
+                <span>Back to Team</span>
+                <svg
+                  className="w-4 h-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M15 19L8 12L15 5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </MagneticElement>
           </div>
         </motion.div>
       </motion.div>
