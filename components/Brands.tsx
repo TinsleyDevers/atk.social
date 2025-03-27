@@ -130,7 +130,6 @@ const BrandCard = ({
           glowColor: "bg-blue-600/5",
         };
       case "both":
-        // Use standard Tailwind classes instead of custom gradient classes
         return {
           borderColor:
             "border-transparent bg-gradient-to-br from-purple-500/10 to-blue-500/10 p-[1px]",
@@ -155,10 +154,19 @@ const BrandCard = ({
       onHoverEnd={() => setIsHovered(false)}
       onClick={onClick}
       data-cursor="view"
+      data-cursor-text={brand.name}
       whileHover={{
         y: -5,
         transition: { duration: 0.3 },
       }}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          onClick();
+        }
+      }}
+      aria-label={`View ${brand.name} details`}
     >
       {brand.category === "both" && (
         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 opacity-50 group-hover:opacity-80 transition-opacity duration-300"></div>
@@ -508,6 +516,36 @@ const BrandDetailModal = ({
   );
 };
 
+// Filter tabs
+const FilterTab = ({
+  filter,
+  isActive,
+  onClick,
+}: {
+  filter: CategoryFilter;
+  isActive: boolean;
+  onClick: () => void;
+}) => (
+  <motion.button
+    key={filter.key}
+    className={`px-4 py-2 text-sm border ${
+      isActive
+        ? "border-white text-white"
+        : "border-white/20 text-gray-400 hover:border-white/40 hover:text-white"
+    } transition-colors`}
+    onClick={onClick}
+    whileHover={{ y: -2 }}
+    whileTap={{ y: 0 }}
+    data-cursor="link"
+    data-cursor-text={filter.label}
+    role="tab"
+    aria-selected={isActive}
+    aria-controls="brand-grid"
+  >
+    {filter.label}
+  </motion.button>
+);
+
 // Main component
 const Brands = () => {
   // state and refs
@@ -660,26 +698,22 @@ const Brands = () => {
         </motion.div>
 
         {/* Filter tabs */}
-        <div className="mb-16 flex flex-wrap justify-center gap-3">
+        <div
+          className="mb-16 flex flex-wrap justify-center gap-3"
+          role="tablist"
+        >
           {filters.map((filter) => (
-            <motion.button
+            <FilterTab
               key={filter.key}
-              className={`px-4 py-2 text-sm border ${
-                activeFilter === filter.key
-                  ? "border-white text-white"
-                  : "border-white/20 text-gray-400 hover:border-white/40 hover:text-white"
-              } transition-colors`}
+              filter={filter}
+              isActive={activeFilter === filter.key}
               onClick={() => handleFilterChange(filter.key)}
-              whileHover={{ y: -2 }}
-              whileTap={{ y: 0 }}
-            >
-              {filter.label}
-            </motion.button>
+            />
           ))}
         </div>
 
         {/* Brand grid */}
-        <div className="max-w-6xl mx-auto mb-24">
+        <div className="max-w-6xl mx-auto mb-24" id="brand-grid">
           <motion.div
             className="grid grid-cols-2 md:grid-cols-4 gap-1 md:gap-2"
             layout
@@ -699,11 +733,9 @@ const Brands = () => {
                 animate={{
                   opacity: brand.isActive ? 1 : 0,
                   scale: brand.isActive ? 1 : 0.8,
-                  // This makes inactive brands take no space in the layout
                   width: brand.isActive ? "auto" : 0,
                   height: brand.isActive ? "auto" : 0,
                   margin: brand.isActive ? "inherit" : 0,
-                  // Hide from screen readers when inactive
                   visibility: brand.isActive ? "visible" : "hidden",
                 }}
                 exit={{ opacity: 0, scale: 0.8 }}
@@ -717,7 +749,6 @@ const Brands = () => {
                   },
                 }}
                 style={{
-                  // Only active items participate in the grid
                   display: brand.isActive ? "block" : "none",
                 }}
                 className={brand.isActive ? "" : "absolute pointer-events-none"}

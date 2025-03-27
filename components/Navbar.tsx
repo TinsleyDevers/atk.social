@@ -818,11 +818,8 @@ const Navbar = () => {
               ))}
             </nav>
 
-            {/* Brands section in mobile menu */}
-            <motion.div
-              className="absolute bottom-40 left-0 w-full px-8"
-              variants={itemVariants}
-            >
+            {/* Brands section in mobile menu - Fixed positioning */}
+            <motion.div className="w-full px-8 mt-12" variants={itemVariants}>
               <h4 className="text-xs uppercase tracking-wider text-gray-500 mb-3 text-center">
                 Brand Partners
               </h4>
@@ -846,7 +843,7 @@ const Navbar = () => {
 
             {/* Social Links in Mobile Menu */}
             <motion.div
-              className="absolute bottom-20 left-0 w-full flex justify-center"
+              className="mt-12 w-full flex justify-center"
               variants={itemVariants}
             >
               <div className="flex space-x-8">

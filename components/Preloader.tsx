@@ -111,10 +111,14 @@ const Preloader: React.FC<PreloaderProps> = ({ onLoadingComplete }) => {
         if (currentProgress >= 100) {
           clearInterval(progressInterval);
 
-          // Short delay before starting exit
+          // Ensure progress is exactly 100% visually before exiting
+          setProgress(100);
+          progressVal.set(100);
+
+          // Longer delay before starting exit to ensure user sees 100%
           setTimeout(() => {
             handleExit();
-          }, 800);
+          }, 1500);
         }
       }, 50);
 
@@ -231,7 +235,7 @@ const Preloader: React.FC<PreloaderProps> = ({ onLoadingComplete }) => {
               style={{ opacity: progressOpacity }}
             >
               <motion.div
-                className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500"
+                className="absolute top-0 left-0 h-full bg-white"
                 style={{ width: `${progress}%` }}
               />
             </motion.div>

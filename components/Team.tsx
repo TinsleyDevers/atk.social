@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence, useInView, Variants } from "framer-motion";
 import Image from "next/image";
 
@@ -199,6 +199,7 @@ const TeamMemberCard = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const cardRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
 
@@ -245,6 +246,21 @@ const TeamMemberCard = ({
       aria-label={`View ${member.name}'s profile`}
     >
       <div className="relative h-full w-full overflow-hidden bg-black/50">
+        {/* Loading skeleton */}
+        {isLoading && (
+          <div className="absolute inset-0 bg-gradient-to-b from-gray-800 to-gray-900 animate-pulse">
+            <div className="absolute bottom-0 left-0 w-full p-8">
+              <div className="h-8 w-48 bg-gray-700 rounded mb-2"></div>
+              <div className="h-4 w-32 bg-gray-700 rounded mb-4"></div>
+              <div className="space-y-2">
+                <div className="h-4 w-full bg-gray-700 rounded"></div>
+                <div className="h-4 w-3/4 bg-gray-700 rounded"></div>
+                <div className="h-4 w-1/2 bg-gray-700 rounded"></div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div
           ref={imageRef}
           className="absolute inset-0 transition-transform duration-500 ease-out"
@@ -253,12 +269,15 @@ const TeamMemberCard = ({
             src={imageError ? "/images/placeholder.png" : member.image}
             alt={`${member.name} - ${member.role}`}
             fill
-            className="object-cover transition-all duration-700 scale-110 group-hover:scale-105 opacity-90 group-hover:opacity-100"
+            className={`object-cover transition-all duration-700 scale-110 group-hover:scale-105 opacity-90 group-hover:opacity-100 ${
+              isLoading ? "opacity-0" : "opacity-100"
+            }`}
             sizes="(max-width: 768px) 100vw, 33vw"
             priority
             loading="eager"
             quality={90}
             onError={() => setImageError(true)}
+            onLoadingComplete={() => setIsLoading(false)}
           />
         </div>
 
@@ -335,6 +354,71 @@ const TeamMemberModal = ({
   member: TeamMember | null;
   onClose: () => void;
 }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const previousActiveElement = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    // Store the currently focused element
+    previousActiveElement.current = document.activeElement as HTMLElement;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  useEffect(() => {
+    if (modalRef.current) {
+      modalRef.current.focus();
+    }
+
+    // Return focus to the previous element when the modal is closed
+    return () => {
+      if (previousActiveElement.current) {
+        previousActiveElement.current.focus();
+      }
+    };
+  }, []);
+
+  // Focus trap effect
+  useEffect(() => {
+    const modal = modalRef.current;
+    if (!modal) return;
+
+    const focusableElements = modal.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstFocusable = focusableElements[0] as HTMLElement;
+    const lastFocusable = focusableElements[
+      focusableElements.length - 1
+    ] as HTMLElement;
+
+    const handleTabKey = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstFocusable) {
+          e.preventDefault();
+          lastFocusable.focus();
+        }
+      } else {
+        if (document.activeElement === lastFocusable) {
+          e.preventDefault();
+          firstFocusable.focus();
+        }
+      }
+    };
+
+    modal.addEventListener("keydown", handleTabKey);
+    return () => modal.removeEventListener("keydown", handleTabKey);
+  }, []);
+
   if (!member) return null;
 
   return (
@@ -350,12 +434,19 @@ const TeamMemberModal = ({
         aria-labelledby={`modal-title-${member.id}`}
       >
         <motion.div
+          ref={modalRef}
           className="relative bg-black/90 border border-white/10 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           onClick={(e) => e.stopPropagation()}
+          tabIndex={-1}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              onClose();
+            }
+          }}
         >
           {/* Close button */}
           <button
@@ -383,15 +474,34 @@ const TeamMemberModal = ({
           <div className="grid grid-cols-1 md:grid-cols-7 bg-black border border-white/10">
             {/* Image column */}
             <div className="md:col-span-3 relative aspect-[3/4] md:aspect-auto overflow-hidden">
+              {/* Loading skeleton */}
+              {isLoading && (
+                <div className="absolute inset-0 bg-gradient-to-b from-gray-800 to-gray-900 animate-pulse">
+                  <div className="absolute bottom-0 left-0 w-full p-8">
+                    <div className="h-8 w-48 bg-gray-700 rounded mb-2"></div>
+                    <div className="h-4 w-32 bg-gray-700 rounded mb-4"></div>
+                    <div className="flex space-x-4">
+                      <div className="w-8 h-8 rounded-full bg-gray-700"></div>
+                      <div className="w-8 h-8 rounded-full bg-gray-700"></div>
+                      <div className="w-8 h-8 rounded-full bg-gray-700"></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <Image
                 src={
-                  member.image.startsWith("/")
+                  imageError
+                    ? "/images/placeholder.png"
+                    : member.image.startsWith("/")
                     ? member.image
                     : "/images/placeholder.png"
                 }
                 alt={`${member.name} - ${member.role}`}
                 fill
-                className="object-cover"
+                className={`object-cover transition-all duration-700 ${
+                  isLoading ? "opacity-0" : "opacity-100"
+                }`}
                 sizes="(max-width: 768px) 100vw, 33vw"
                 priority
                 loading="eager"
@@ -399,7 +509,9 @@ const TeamMemberModal = ({
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.src = "/images/placeholder.png";
+                  setImageError(true);
                 }}
+                onLoadingComplete={() => setIsLoading(false)}
               />
 
               {/* Gradient overlay */}
