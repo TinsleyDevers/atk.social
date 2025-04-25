@@ -110,19 +110,19 @@ const Contact = () => {
     {
       id: "atk",
       title: "ATK",
-      email: "hello@atkgroup.com",
+      email: "hello@atk.social",
       description: "For general inquiries and information",
     },
     {
       id: "social",
       title: "ATK SOCIAL",
-      email: "social@atkgroup.com",
+      email: "social@atk.social",
       description: "Content creation and social media",
     },
     {
       id: "studios",
       title: "ATK STUDIOS",
-      email: "studios@atkgroup.com",
+      email: "studios@atk.social",
       description: "Game development and interactive experiences",
     },
   ];
